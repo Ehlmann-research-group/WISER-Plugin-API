@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Band-Math Plugins &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Accessing and Modifying WISER State" href="wiser_state.html" />
+    <link rel="prev" title="GUI Plugins in WISER" href="ui_plugins.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="band-math-plugins">
+<h1>Band-Math Plugins<a class="headerlink" href="#band-math-plugins" title="Link to this heading">¶</a></h1>
+<p>The WISER band-math functionality may be extended by implementing a
+<a class="reference internal" href="#wiser.plugins.BandMathPlugin" title="wiser.plugins.BandMathPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.plugins.BandMathPlugin</span></code></a> instance that provides implementations of
+the <a class="reference internal" href="#wiser.bandmath.BandMathFunction" title="wiser.bandmath.BandMathFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.bandmath.BandMathFunction</span></code></a> type.  The plugin itself is very
+straightforward, but the implementation of functions is somewhat involved, as
+WISER must manage various details in the band-math implementation.</p>
+<section id="the-bandmathplugin-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">BandMathPlugin</span></code> Class<a class="headerlink" href="#the-bandmathplugin-class" title="Link to this heading">¶</a></h2>
+<p>Band-math plugins must derive from the <code class="docutils literal notranslate"><span class="pre">BandMathPlugin</span></code> class:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.plugins.BandMathPlugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">BandMathPlugin</span></span><a class="headerlink" href="#wiser.plugins.BandMathPlugin" title="Link to this definition">¶</a></dt>
+<dd><p>This is the base type for plugins that provide custom band-math functions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.plugins.BandMathPlugin.get_bandmath_functions">
+<span class="sig-name descname"><span class="pre">get_bandmath_functions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#wiser.bandmath.BandMathFunction" title="wiser.bandmath.types.BandMathFunction"><span class="pre">BandMathFunction</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.plugins.BandMathPlugin.get_bandmath_functions" title="Link to this definition">¶</a></dt>
+<dd><p>This method returns a dictionary of all band-math functions provided by
+the plugin.</p>
+<p>The keys are the function names, and must satisfy the parsing
+requirements of the band-math parser:  names must start with an
+alphabetical character (a-z), and must include only alphanumeric
+characters and underscores (a-z, 0-9, _).</p>
+<p>The values are instances of classes that extend the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BandMathFunction</span></code> type, to provide the various operations
+required by band-math functions.</p>
+<p>Band-math expressions are <em>case-insensitive</em>.  Therefore, all function
+names specified by a plugin are converted to lowercase when loaded into
+the band-math evaluator.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>The plugin implementation is very straightforward; it must simply return a
+Python <code class="docutils literal notranslate"><span class="pre">dict</span></code> that associates string function-names and corresponding
+<code class="docutils literal notranslate"><span class="pre">BandMathFunction</span></code> instances.</p>
+<p>The implementation of the band-math functions themselves is more involved;
+read on for details.</p>
+</section>
+<section id="the-bandmathfunction-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">BandMathFunction</span></code> Class<a class="headerlink" href="#the-bandmathfunction-class" title="Link to this heading">¶</a></h2>
+<p>Band-math functions must derive from the <code class="docutils literal notranslate"><span class="pre">BandMathFunction</span></code> class:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.bandmath.</span></span><span class="sig-name descname"><span class="pre">BandMathFunction</span></span><a class="headerlink" href="#wiser.bandmath.BandMathFunction" title="Link to this definition">¶</a></dt>
+<dd><p>The abstract base-class for all band-math functions and built-in operators.
+Functions must be able to report useful documentation, as well as the type
+of the result based on their input types, so that the user interface can
+provide useful feedback to users.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathFunction.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.bandmath.BandMathFunction.get_description" title="Link to this definition">¶</a></dt>
+<dd><p>Return a helpful description of the band-math function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathFunction.analyze">
+<span class="sig-name descname"><span class="pre">analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">BandMathExprInfo</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BandMathExprInfo</span></span></span><a class="headerlink" href="#wiser.bandmath.BandMathFunction.analyze" title="Link to this definition">¶</a></dt>
+<dd><p>Given the indicated argument types, this function reports the
+result-type of the function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathFunction.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wiser.bandmath.BandMathValue" title="wiser.bandmath.types.BandMathValue"><span class="pre">BandMathValue</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.bandmath.BandMathValue" title="wiser.bandmath.types.BandMathValue"><span class="pre">BandMathValue</span></a></span></span><a class="headerlink" href="#wiser.bandmath.BandMathFunction.apply" title="Link to this definition">¶</a></dt>
+<dd><p>Apply the function to the specified arguments to produce a value.  If
+the function gets the wrong number or types of arguments, it should
+raise a suitably-typed Exception.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>For maximum flexibility, band-math functions may accept any number and type of
+arguments.  For example, a band-math function <code class="docutils literal notranslate"><span class="pre">dotprod(a,</span> <span class="pre">b)</span></code> may accept two
+spectra (returning a number), a spectrum and a data-set (for a pixel-wise
+dot-product of the spectrum with the data-set, returning a 1-band data-set),
+or a data-set and a spectrum (same).  Therefore, functions are responsible for
+reporting errors if they are given the wrong number of arguments, or if the
+arguments are of the wrong types.  Additional checks may also be necessary, if
+e.g. there is a mismatch in the number of bands between arguments, or a mismatch
+in the spatial dimensions of images or bands.</p>
+</section>
+<section id="the-bandmathvalue-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">BandMathValue</span></code> Class<a class="headerlink" href="#the-bandmathvalue-class" title="Link to this heading">¶</a></h2>
+<p>Band-math function arguments and return-values are wrapped in the
+<code class="docutils literal notranslate"><span class="pre">BandMathValue</span></code> class:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.bandmath.</span></span><span class="sig-name descname"><span class="pre">BandMathValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.bandmath.VariableType" title="wiser.bandmath.types.VariableType"><span class="pre">VariableType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_intermediate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.bandmath.BandMathValue" title="Link to this definition">¶</a></dt>
+<dd><p>This is a value created or consumed by a band-math expression during
+evaluation.  The high-level type of the variable is stored, along with the
+actual value.  The value may be one of several possible types, since most
+band-math operations work directly on NumPy arrays rather than other WISER
+types.</p>
+<p>Whether the band-math value is a computed result or not is also recorded in
+this type, so that math operations can reuse an argument’s memory where that
+would be more efficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> – The type of the band-math value.</p></li>
+<li><p><strong>value</strong> – The value itself.</p></li>
+<li><p><strong>computed</strong> – If True, the value was computed from an expression.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathValue.as_numpy_array">
+<span class="sig-name descname"><span class="pre">as_numpy_array</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#wiser.bandmath.BandMathValue.as_numpy_array" title="Link to this definition">¶</a></dt>
+<dd><p>If a band-math value is an image cube, image band, or spectrum, this
+function returns the value as a NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code>.  If a band-math
+value is some other type, the function raises a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.bandmath.BandMathValue.as_numpy_array_by_bands">
+<span class="sig-name descname"><span class="pre">as_numpy_array_by_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#wiser.bandmath.BandMathValue.as_numpy_array_by_bands" title="Link to this definition">¶</a></dt>
+<dd><p>If a band-math value is an image cube, image band, or spectrum, this
+function returns the value as a NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code>.  If a band-math
+value is some other type, the function raises a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.
+This function should really only be called on image_cubes unless its 
+called through make_image_cube_compatible_by_bands</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>For arguments, non-scalar band-math values may be fetched from a
+<code class="docutils literal notranslate"><span class="pre">BandMathValue</span></code> object via the <code class="xref py py-meth docutils literal notranslate"><span class="pre">BandMathValue.as_numpy_array()</span></code> method.
+Scalar values may of course be retrieved directly from the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">BandMathValue.value</span></code> member.</p>
+<p>For function return-values, results must also be wrapped in a <code class="docutils literal notranslate"><span class="pre">BandMathValue</span></code>
+object.  The result may be a NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code> instance, or a specific kind of
+object (e.g. <code class="docutils literal notranslate"><span class="pre">RasterDataSet</span></code>, <code class="docutils literal notranslate"><span class="pre">Spectrum</span></code>, …), or a scalar.  In all these
+cases, the type of the result must be reported with a value from the
+<a class="reference internal" href="#wiser.bandmath.VariableType" title="wiser.bandmath.VariableType"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.bandmath.VariableType</span></code></a> enumeration:</p>
+<dl class="py class enum">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.bandmath.</span></span><span class="sig-name descname"><span class="pre">VariableType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.bandmath.VariableType" title="Link to this definition">¶</a></dt>
+<dd><p>Types of variables that are supported by the band-math functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.IMAGE_CUBE">
+<span class="sig-name descname"><span class="pre">IMAGE_CUBE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.IMAGE_CUBE:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.IMAGE_CUBE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.IMAGE_BAND">
+<span class="sig-name descname"><span class="pre">IMAGE_BAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.IMAGE_BAND:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.IMAGE_BAND" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.SPECTRUM">
+<span class="sig-name descname"><span class="pre">SPECTRUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.SPECTRUM:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.SPECTRUM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.REGION_OF_INTEREST">
+<span class="sig-name descname"><span class="pre">REGION_OF_INTEREST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.REGION_OF_INTEREST:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.REGION_OF_INTEREST" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.NUMBER">
+<span class="sig-name descname"><span class="pre">NUMBER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.NUMBER:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.NUMBER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.BOOLEAN">
+<span class="sig-name descname"><span class="pre">BOOLEAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.BOOLEAN:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.BOOLEAN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.STRING">
+<span class="sig-name descname"><span class="pre">STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.STRING:</span> <span class="pre">7&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.STRING" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="reporting-other-function-details">
+<h2>Reporting Other Function Details<a class="headerlink" href="#reporting-other-function-details" title="Link to this heading">¶</a></h2>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">BandMathFunction</span></code> implementations should also implement the other
+specified operations, to fully integrate with the functionality exposed in
+WISER.  For example, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">wiser.bandmath.BandMathFunction.get_result_type()</span></code>
+method reports the type of the result based on the number and types of the
+arguments, which is then reported to the user in the GUI.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Additional abstract methods will be added to the <code class="docutils literal notranslate"><span class="pre">BandMathFunction</span></code> type
+in the near future.  For example, WISER needs the ability to estimate the
+memory requirements for evaluating a given band-math expression, as
+operations may be very resource-intensive.  Thus, functions will need to
+expose this kind of information in the future.</p>
+<p>The goal of the band-math implementation will be to not <em>require</em> these new
+operations, so that existing band-math plugins are rendered unusable when
+new implementation details are added.  However, for full integration into
+WISER’s capabilities, it would be valuable to implement missing
+functionality as quickly as possible.</p>
+</div>
+</section>
+<section id="implementation-suggestions">
+<h2>Implementation Suggestions<a class="headerlink" href="#implementation-suggestions" title="Link to this heading">¶</a></h2>
+<p>The present form of the band-math functionality requires the use of a number of
+wrapper objects for functions and values.  Thus, plugin writers are encouraged
+to separate the <em>operations themselves</em> from the <em>band-math integration code</em>.
+This will ensure that useful operations you may create are still widely useful
+in your own code, and only the integration-points with the WISER band-math
+functionality will require the additional overhead of the above classes.</p>
+<p>Additionally, it is suggested that computational operations should be
+implemented to operate on NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code> objects for maximum generality,
+although it may also be useful to implement certain operations against
+<a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.RasterDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.raster.RasterDataSet</span></code></a> or <a class="reference internal" href="supporting_types.html#wiser.raster.Spectrum" title="wiser.raster.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.raster.Spectrum</span></code></a> objects,
+where metadata is available for use.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Band-Math Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-bandmathplugin-class">The <code class="docutils literal notranslate"><span class="pre">BandMathPlugin</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-bandmathfunction-class">The <code class="docutils literal notranslate"><span class="pre">BandMathFunction</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-bandmathvalue-class">The <code class="docutils literal notranslate"><span class="pre">BandMathValue</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-other-function-details">Reporting Other Function Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-suggestions">Implementation Suggestions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ui_plugins.html" title="previous chapter">GUI Plugins in WISER</a></li>
+      <li>Next: <a href="wiser_state.html" title="next chapter">Accessing and Modifying WISER State</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/bandmath_plugins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

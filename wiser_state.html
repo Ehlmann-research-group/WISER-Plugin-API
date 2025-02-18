@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Accessing and Modifying WISER State &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Supporting Types" href="supporting_types.html" />
+    <link rel="prev" title="Band-Math Plugins" href="bandmath_plugins.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="accessing-and-modifying-wiser-state">
+<h1>Accessing and Modifying WISER State<a class="headerlink" href="#accessing-and-modifying-wiser-state" title="Link to this heading">¶</a></h1>
+<p>Tool plugins and context-menu plugins can access and manipulate WISER
+application state through the <code class="docutils literal notranslate"><span class="pre">ApplicationState</span></code> class.  The plugin can
+access an instance of this class via the <code class="docutils literal notranslate"><span class="pre">&quot;wiser&quot;</span></code> value in the context
+passed to the plugin.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.gui.app_state.</span></span><span class="sig-name descname"><span class="pre">ApplicationState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ApplicationConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState" title="Link to this definition">¶</a></dt>
+<dd><p>This class holds all WISER application state.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_loader">
+<span class="sig-name descname"><span class="pre">get_loader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_loader" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">RasterDataLoader</span></code> instance being used by WISER to load
+data sets.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_current_dir">
+<span class="sig-name descname"><span class="pre">get_current_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_current_dir" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the current directory of the application.  This is the last
+directory that the user accessed in a load or save operation, so that
+the next load or save can start at the same directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.set_current_dir">
+<span class="sig-name descname"><span class="pre">set_current_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.set_current_dir" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the current directory of the application.  This is the last
+directory that the user accessed in a load or save operation, so that
+the next load or save can start at the same directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.update_cwd_from_path">
+<span class="sig-name descname"><span class="pre">update_cwd_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.update_cwd_from_path" title="Link to this definition">¶</a></dt>
+<dd><p>This helper function makes it easier to update the current working
+directory (CWD) at the end of a file-load or file-save operation.  The
+specified path is assumed to be either a directory or a file:</p>
+<ul class="simple">
+<li><p>If it is a directory then the current directory is set to that path.</p></li>
+<li><p>If it is a file then the directory portion of the path is taken and
+used for the current directory.</p></li>
+</ul>
+<p>The function only updates the current directory if the filesystem
+actually reports it as a valid directory.  If the directory can’t be
+identified from the specified path (e.g. the OS doesn’t report the path
+as a valid directory), this function simply logs a warning.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.open_file">
+<span class="sig-name descname"><span class="pre">open_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.open_file" title="Link to this definition">¶</a></dt>
+<dd><p>A general file-open operation in WISER.  This method can be used
+for loading any kind of data file whose type and contents can be
+identified automatically.  This operation should not be used for
+importing ASCII spectral data, regions of interest, etc. since
+WISER cannot identify the file’s contents automatically.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.add_dataset">
+<span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.add_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Add a dataset to the application state.  A unique numeric ID is assigned
+to the dataset, which is also set on the dataset itself.</p>
+<p>The method will fire a signal indicating that the dataset was added.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_dataset">
+<span class="sig-name descname"><span class="pre">get_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Return the dataset with the specified numeric ID.  If the ID is
+unrecognized then a KeyError will be raised.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.num_datasets">
+<span class="sig-name descname"><span class="pre">num_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.num_datasets" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of datasets in the application state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_datasets">
+<span class="sig-name descname"><span class="pre">get_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_datasets" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of datasets in the application state.  The returned list
+is separate from the internal application-state data structures, and
+therefore may be mutated by the caller without harm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.remove_dataset">
+<span class="sig-name descname"><span class="pre">remove_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.remove_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Remove the dataset with the specified numeric ID from the application
+state and the cache. If the ID is unrecognized then a KeyError will 
+be raised.</p>
+<p>The method will fire a signal indicating that the dataset was removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.multiple_datasets_same_size">
+<span class="sig-name descname"><span class="pre">multiple_datasets_same_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.multiple_datasets_same_size" title="Link to this definition">¶</a></dt>
+<dd><p>This function returns True if there are multiple datasets, and they are
+all the same size.  If either of these cases is not true then False is
+returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.multiple_displayed_datasets_same_size">
+<span class="sig-name descname"><span class="pre">multiple_displayed_datasets_same_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.multiple_displayed_datasets_same_size" title="Link to this definition">¶</a></dt>
+<dd><p>This function returns True if there are multiple visible datasets and
+they are all the same size.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.add_spectral_library">
+<span class="sig-name descname"><span class="pre">add_spectral_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">library</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.add_spectral_library" title="Link to this definition">¶</a></dt>
+<dd><p>Add a spectral library to the application state, assigning a new ID to
+the library.  The method will fire a signal indicating that the spectral
+library was added, including the ID assigned to the library.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_spectral_library">
+<span class="sig-name descname"><span class="pre">get_spectral_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_spectral_library" title="Link to this definition">¶</a></dt>
+<dd><p>Return the spectral library with the specified ID.  If the ID is
+unrecognized, a KeyError will be raised.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.num_spectral_libraries">
+<span class="sig-name descname"><span class="pre">num_spectral_libraries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.num_spectral_libraries" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of spectral libraries in the application state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_spectral_libraries">
+<span class="sig-name descname"><span class="pre">get_spectral_libraries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_spectral_libraries" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of all the spectral libraries in the application state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.remove_spectral_library">
+<span class="sig-name descname"><span class="pre">remove_spectral_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.remove_spectral_library" title="Link to this definition">¶</a></dt>
+<dd><p>Remove the specified spectral library from the application state.
+The method will fire a signal indicating that the spectral library
+was removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_config" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the value of the specified config option.  An optional default
+value may be specified.</p>
+<p>Options are specified as a sequence of names separated by dots ‘.’,
+just like a series of object-member accesses on an object hierarchy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.set_config">
+<span class="sig-name descname"><span class="pre">set_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.set_config" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the value of the specified config option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.add_roi">
+<span class="sig-name descname"><span class="pre">add_roi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RegionOfInterest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_name_unique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.add_roi" title="Link to this definition">¶</a></dt>
+<dd><p>Add a Region of Interest to WISER’s state.  A <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> is raised
+if the ROI does not have a unique name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.remove_roi">
+<span class="sig-name descname"><span class="pre">remove_roi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roi_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.remove_roi" title="Link to this definition">¶</a></dt>
+<dd><p>Removes the specified Region of Interest from WISER’s state.
+A <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> is raised if no ROI has the specified ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_roi">
+<span class="sig-name descname"><span class="pre">get_roi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RegionOfInterest</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_roi" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a Region of Interest from WISER’s state.  The caller may
+specify an <code class="docutils literal notranslate"><span class="pre">id</span></code> keyword-argument to retrieve an ROI by ID, or
+a <code class="docutils literal notranslate"><span class="pre">name</span></code> keyword-argument to retrieve an ROI by name.  Names are
+case-sensitive.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_rois">
+<span class="sig-name descname"><span class="pre">get_rois</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">RegionOfInterest</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_rois" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of all Regions of Interest in WISER’s application state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_spectrum">
+<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrum_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="supporting_types.html#wiser.raster.Spectrum" title="wiser.raster.spectrum.Spectrum"><span class="pre">Spectrum</span></a></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a spectrum from WISER’s state.  A <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> is raised if
+the ID doesn’t correspond to a spectrum.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_active_spectrum">
+<span class="sig-name descname"><span class="pre">get_active_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_active_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve the current active spectrum.  The “active spectrum” is the
+spectrum that the user most recently selected, or it may be the
+output of a band-math expression, plugin, etc. that computes a spectrum.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.set_active_spectrum">
+<span class="sig-name descname"><span class="pre">set_active_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="supporting_types.html#wiser.raster.Spectrum" title="wiser.raster.spectrum.Spectrum"><span class="pre">Spectrum</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.set_active_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Set the current active spectrum to be the specified spectrum.
+The “active spectrum” is the spectrum that the user most recently
+selected, or it may be the output of a band-math expression, plugin,
+etc. that computes a spectrum.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.collect_spectrum">
+<span class="sig-name descname"><span class="pre">collect_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="supporting_types.html#wiser.raster.Spectrum" title="wiser.raster.spectrum.Spectrum"><span class="pre">Spectrum</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.collect_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Add the specified spectrum to the “collected spectra” group.</p>
+<p>Note that the specified spectrum cannot be the current “active
+spectrum”; if it is, a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> will be raised.  The
+current “active spectrum” is collected via the
+<code class="docutils literal notranslate"><span class="pre">collect_active_spectrum()</span></code> method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.collect_active_spectrum">
+<span class="sig-name descname"><span class="pre">collect_active_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.collect_active_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Add the current “active spectrum” to the “collected spectra” group.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> will be raised if there is no active spectrum when
+this method is called.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.get_collected_spectra">
+<span class="sig-name descname"><span class="pre">get_collected_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="supporting_types.html#wiser.raster.Spectrum" title="wiser.raster.spectrum.Spectrum"><span class="pre">Spectrum</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.get_collected_spectra" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the current list of collected spectra.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.remove_collected_spectrum">
+<span class="sig-name descname"><span class="pre">remove_collected_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.remove_collected_spectrum" title="Link to this definition">¶</a></dt>
+<dd><p>Removes a collected spectrum from the list of collected spectra.
+The spectrum to remove is specified by a 0-based index.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.app_state.ApplicationState.remove_all_collected_spectra">
+<span class="sig-name descname"><span class="pre">remove_all_collected_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.gui.app_state.ApplicationState.remove_all_collected_spectra" title="Link to this definition">¶</a></dt>
+<dd><p>Removes all spectra from the list of collected spectra.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Operations involving loading and storing raster data sets will require the use
+of a loader object, also accessible off of the <code class="docutils literal notranslate"><span class="pre">ApplicationState</span></code> object.
+See the <code class="docutils literal notranslate"><span class="pre">get_loader()</span></code> function above.  The loader offers these operations:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">RasterDataLoader</span></span><a class="headerlink" href="#wiser.raster.RasterDataLoader" title="Link to this definition">¶</a></dt>
+<dd><p>A loader for loading 2D raster data-sets from the local filesystem, using
+GDAL (Geospatial Data Abstraction Library) for reading the data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataLoader.load_normal_dataset">
+<span class="sig-name descname"><span class="pre">load_normal_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">impl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_cache</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.raster.RasterDataLoader.load_normal_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>The normal way to load in a dataset</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataLoader.load_from_file">
+<span class="sig-name descname"><span class="pre">load_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataLoader.load_from_file" title="Link to this definition">¶</a></dt>
+<dd><p>Load a raster data-set from the specified path.  Returns a
+<a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.RasterDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">RasterDataSet</span></code></a> object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataLoader.dataset_from_numpy_array">
+<span class="sig-name descname"><span class="pre">dataset_from_numpy_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="supporting_types.html#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></span><a class="headerlink" href="#wiser.raster.RasterDataLoader.dataset_from_numpy_array" title="Link to this definition">¶</a></dt>
+<dd><p>Given a NumPy ndarray, this function returns a RasterDataSet object
+that uses the array for its raster data.  The input ndarray must have
+three dimensions; they are interpreted as
+[spectral][spatial_y][spatial_x].</p>
+<p>Raises a ValueError if the input array doesn’t have 3 dimensions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="loading-raster-data-into-wiser">
+<h2>Loading Raster Data into WISER<a class="headerlink" href="#loading-raster-data-into-wiser" title="Link to this heading">¶</a></h2>
+<p>The above classes expose two ways to load raster data into WISER.  The first
+option is to use the <code class="docutils literal notranslate"><span class="pre">ApplicationState.open_file()</span></code> function, which simply
+loads a file into WISER.  Several kinds of files (raster images, spectral
+libraries, and a few other kinds of files) are supported by this method.  No
+value is returned, so this function is not useful for getting access to the
+contents of a specific raster file.</p>
+<p>To open a raster data file and get back an object to access its contents
+requires the use of the <code class="docutils literal notranslate"><span class="pre">RasterDataLoader</span></code>.  The loader is accessed from the
+<code class="docutils literal notranslate"><span class="pre">ApplicationState.get_loader()</span></code> method, as described above.  Note that any
+raster image loaded this way is not automatically displayed; after it has been
+loaded and possibly manipulated, it must be added to the <code class="docutils literal notranslate"><span class="pre">ApplicationState</span></code>
+object with the <code class="docutils literal notranslate"><span class="pre">add_dataset()</span></code> method, before it will be displayed.</p>
+<p>Similarly, a NumPy array can be converted into a <code class="docutils literal notranslate"><span class="pre">RasterDataSet</span></code> object using
+the <code class="docutils literal notranslate"><span class="pre">RasterDataLoader.dataset_from_numpy_array()</span></code> method.  It will likely be
+desirable to add metadata to the resulting <code class="docutils literal notranslate"><span class="pre">RasterDataSet</span></code> object (it is
+convenient to copy it from an existing data-set, if the new object was generated
+from an existing data-set), but this is not required.</p>
+<p>Finally, it is not advisable to change a <code class="docutils literal notranslate"><span class="pre">RasterDataSet</span></code> object after handing
+it to WISER for display, as WISER currently expects that the object will not
+change once it has been given to WISER.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Accessing and Modifying WISER State</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#wiser.gui.app_state.ApplicationState"><code class="docutils literal notranslate"><span class="pre">ApplicationState</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wiser.raster.RasterDataLoader"><code class="docutils literal notranslate"><span class="pre">RasterDataLoader</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading-raster-data-into-wiser">Loading Raster Data into WISER</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="bandmath_plugins.html" title="previous chapter">Band-Math Plugins</a></li>
+      <li>Next: <a href="supporting_types.html" title="next chapter">Supporting Types</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/wiser_state.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

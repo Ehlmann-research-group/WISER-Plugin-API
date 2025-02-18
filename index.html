@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Extending WISER &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="WISER Plugins Overview" href="plugins.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="extending-wiser">
+<h1>Extending WISER<a class="headerlink" href="#extending-wiser" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#development-environment">Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugins.html#logging">Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="toolsmenu_plugins.html#the-toolsmenuplugin-class">The <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> Class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ctxmenu_plugins.html#the-contextmenuplugin-class">The <code class="docutils literal notranslate"><span class="pre">ContextMenuPlugin</span></code> Class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ui_plugins.html#using-qt-designer">Using Qt Designer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bandmath_plugins.html#the-bandmathplugin-class">The <code class="docutils literal notranslate"><span class="pre">BandMathPlugin</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bandmath_plugins.html#the-bandmathfunction-class">The <code class="docutils literal notranslate"><span class="pre">BandMathFunction</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bandmath_plugins.html#the-bandmathvalue-class">The <code class="docutils literal notranslate"><span class="pre">BandMathValue</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bandmath_plugins.html#reporting-other-function-details">Reporting Other Function Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bandmath_plugins.html#implementation-suggestions">Implementation Suggestions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState"><code class="docutils literal notranslate"><span class="pre">ApplicationState</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="wiser_state.html#wiser.raster.RasterDataLoader"><code class="docutils literal notranslate"><span class="pre">RasterDataLoader</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="wiser_state.html#loading-raster-data-into-wiser">Loading Raster Data into WISER</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supporting_types.html#raster-data-sets">Raster Data Sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supporting_types.html#raster-data-bands">Raster Data Bands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supporting_types.html#spectra">Spectra</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="plugins.html" title="next chapter">WISER Plugins Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

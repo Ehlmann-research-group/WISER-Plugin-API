@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tool Menu Plugins &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Context-Menu Plugins" href="ctxmenu_plugins.html" />
+    <link rel="prev" title="WISER Plugins Overview" href="plugins.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="tool-menu-plugins">
+<h1>Tool Menu Plugins<a class="headerlink" href="#tool-menu-plugins" title="Link to this heading">¶</a></h1>
+<p>Tool Menu plugins integrate into the toolbar in WISER. Specifically, all plugins
+made in this way will be under the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> tab. Tool menu plugins have access
+to <a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState" title="wiser.gui.app_state.ApplicationState"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.app_state.ApplicationState</span></code></a> which gives a large amount of control over operations
+on datasets, spectra, and regions of interest (ROIs). The plugin you create must
+subclass the <a class="reference internal" href="#wiser.plugins.ToolsMenuPlugin" title="wiser.plugins.ToolsMenuPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.plugins.ToolsMenuPlugin</span></code></a> type and fill in the various
+operations that WISER would call. Specifically, fill in the <code class="docutils literal notranslate"><span class="pre">add_tool_menu_items</span></code>
+function.</p>
+<p>Similar to context-menu Plugins, implementing a tool menu plugin requires
+some familiarity with Qt 5, since the plugin must, at a minimum, add <code class="docutils literal notranslate"><span class="pre">QMenu</span></code>
+actions for specific operations that are exposed.  If a plugin intends to expose
+its own GUI for configuration or other user interactions, please see
+<a class="reference internal" href="ui_plugins.html#gui-plugins-in-wiser"><span class="std std-ref">GUI Plugins in WISER</span></a> for more details on how this may be done.
+You will also need to understand everything in this section so that you can
+interface effectively with WISER’s internals.</p>
+<section id="the-toolsmenuplugin-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> Class<a class="headerlink" href="#the-toolsmenuplugin-class" title="Link to this heading">¶</a></h2>
+<p>Tools menu plugins must derive the <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> class. The documentation
+for this class spells out the essential details for interfacing with WISER.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.plugins.ToolsMenuPlugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ToolsMenuPlugin</span></span><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin" title="Link to this definition">¶</a></dt>
+<dd><p>This is the base type for plugins that integrate into the WISER “Tools”
+application-menu.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.plugins.ToolsMenuPlugin.add_tool_menu_items">
+<span class="sig-name descname"><span class="pre">add_tool_menu_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_menu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QMenu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wiser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState" title="wiser.gui.app_state.ApplicationState"><span class="pre">ApplicationState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin.add_tool_menu_items" title="Link to this definition">¶</a></dt>
+<dd><p>This method is called by WISER to allow plugins to add menu actions or
+submenus into the Tools application menu.</p>
+<p>If a plugin provides multiple actions, the developer has several
+choices.  If all actions are useful and expected to be invoked
+regularly, the actions can be added directly to the Tools menu.  If
+some actions are used much less frequently, it is recommended that
+these actions be put into a submenu, to keep the Tools menu from
+becoming too cluttered.</p>
+<p>Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to
+add sub-menus to the Tools menu.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tool Menu Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-toolsmenuplugin-class">The <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> Class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="plugins.html" title="previous chapter">WISER Plugins Overview</a></li>
+      <li>Next: <a href="ctxmenu_plugins.html" title="next chapter">Context-Menu Plugins</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/toolsmenu_plugins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

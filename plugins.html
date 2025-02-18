@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>WISER Plugins Overview &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tool Menu Plugins" href="toolsmenu_plugins.html" />
+    <link rel="prev" title="Extending WISER" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="wiser-plugins-overview">
+<h1>WISER Plugins Overview<a class="headerlink" href="#wiser-plugins-overview" title="Link to this heading">¶</a></h1>
+<p>WISER has three places where user-implemented plugins can be incorporated into
+the application:</p>
+<ul class="simple">
+<li><p><strong>“Tools” menu plugins</strong> are shown in the WISER application menubar, under
+the “Tools” menu.  These plugins can implement their own workflows, and can
+access and manipulate application state.</p></li>
+<li><p><strong>Context-menu plugins</strong> are shown in context menus displayed in various
+parts of WISER, when the user right-clicks in an area, or uses other OS
+support to show a context menu.  Besides the capabilities of “Tools” menu
+plugins, context-menu plugins are also able to respond to the picking of
+specific objects in WISER, such as datasets, spectra, and Regions of
+Interest (ROIs).</p></li>
+<li><p><strong>Custom band-math function plugins</strong> extend the WISER band-math
+functionality with additional custom functions.  They are only used in
+this context.</p></li>
+</ul>
+<p>The process of creating a WISER plugin is straightforward.  One must create a
+subclass of the plugin base-class corresponding to the functionality to be
+extended:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="toolsmenu_plugins.html#wiser.plugins.ToolsMenuPlugin" title="wiser.plugins.ToolsMenuPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.plugins.ToolsMenuPlugin</span></code></a> - “Tools” menu plugins</p></li>
+<li><p><a class="reference internal" href="ctxmenu_plugins.html#wiser.plugins.ContextMenuPlugin" title="wiser.plugins.ContextMenuPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.plugins.ContextMenuPlugin</span></code></a> - context-menu plugins</p></li>
+<li><p><a class="reference internal" href="bandmath_plugins.html#wiser.plugins.BandMathPlugin" title="wiser.plugins.BandMathPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.plugins.BandMathPlugin</span></code></a> - band-math plugins</p></li>
+</ul>
+<p>Each of these classes has slightly different functionality to implement.</p>
+<p><strong>Note:</strong>  To implement a WISER plugin, you will need to be comfortable with
+these libraries:</p>
+<ul class="simple">
+<li><p>Python 3</p></li>
+<li><p>Qt5 / PySide2 (for graphical UI interactions)</p></li>
+<li><p>NumPy / AstroPy (for operations involving imaging spectroscopy data)</p></li>
+</ul>
+<p>In addition, plugins may rely on other third-party libraries for doing
+computations.</p>
+<section id="development-environment">
+<h2>Development Environment<a class="headerlink" href="#development-environment" title="Link to this heading">¶</a></h2>
+<p>It is not uncommon for plugins to use third-party libraries for various
+processing tasks, but WISER only includes the basic libraries necessary for
+visualization.  To support such plugins, the WISER “plugin paths” configuration
+must be updated to point to a Python environment where the plugin dependencies
+are installed.  This configuration is accessible through the WISER config
+properties UI, on the Plugins tab:</p>
+<img alt="_images/plugin_config.png" src="_images/plugin_config.png" />
+<p>In the top half of this config window, the necessary plugin paths may be
+entered.  This will either be the path to the plugin’s source-code itself (for
+example, the <code class="docutils literal notranslate"><span class="pre">/Users/donnie/Projects/WISER-Plugins</span></code> path), or it may be the
+path to dependencies required by the plugin (the
+<code class="docutils literal notranslate"><span class="pre">/Users/donnie/Projects/WISER-Plugins/venv/lib/python3.9/site-packages</span></code> path).</p>
+<p>There are several options for setting up plugin dependencies.  The above example
+is set up with <a class="reference external" href="https://virtualenv.pypa.io/en/latest/">virtualenv</a>, a widely
+used Python environment management tool.  For example, the commands issued may
+be the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>From<span class="w"> </span>the<span class="w"> </span>~/Projects/WISER-Plugins<span class="w"> </span>directory
+<span class="go">virtualenv venv</span>
+<span class="go">source venv/bin/activate</span>
+<span class="go">pip install opencv-python</span>
+</pre></div>
+</div>
+<p>With this approach, you will generally want to point WISER at the
+<code class="docutils literal notranslate"><span class="pre">site-packages</span></code> directory of the Python environment you initialize; this is
+where all of the packages will be installed, and WISER can load them from there.</p>
+<p>In the bottom half of this config window, the full module and class name of
+plugin classes may be entered.</p>
+<p>The “Verify All” button in the bottom half of the plugin configuration is very
+useful, as it will attempt to load and initialize every plugin currently in the
+WISER configuration.  If there are dependency issues, or if a plugin cannot be
+loaded for some other reason, an error will be reported, and the WISER logs will
+contain useful details for debugging the issue.</p>
+</section>
+<section id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Link to this heading">¶</a></h2>
+<p>To facilitate debugging, plugins should make liberal use of the <a class="reference external" href="https://docs.python.org/3/howto/logging.html">Python logging
+facilities</a> to write to the
+WISER runtime logs.  These logs are available at various locations depending on
+the platform WISER is running on:</p>
+<ul class="simple">
+<li><p>Linux:  <code class="docutils literal notranslate"><span class="pre">~/.wiser/wiser.log</span></code></p></li>
+<li><p>macOS:  <code class="docutils literal notranslate"><span class="pre">~/Library/WISER/wiser.log</span></code></p></li>
+<li><p>Windows:  <code class="docutils literal notranslate"><span class="pre">%USERPROFILE%\AppData\Local\WISER\wiser.log</span></code></p></li>
+</ul>
+<p>To facilitate logging, WISER provides a <code class="docutils literal notranslate"><span class="pre">&#64;log_exceptions</span></code> decorator that can
+be used to wrap plugin functions.  This decorator will automatically log any
+exceptions that decorated functions raise during execution.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="wiser.plugins.log_exceptions">
+<span class="sig-prename descclassname"><span class="pre">&#64;</span></span><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">log_exceptions</span></span><a class="headerlink" href="#wiser.plugins.log_exceptions" title="Link to this definition">¶</a></dt>
+<dd><p>A decorator to log exceptions thrown by a function, on the specified logger.
+The decorator takes one optional argument <code class="docutils literal notranslate"><span class="pre">logger</span></code>, allowing the specific
+logger to use to be specified.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">WISER Plugins Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#development-environment">Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Extending WISER</a></li>
+      <li>Next: <a href="toolsmenu_plugins.html" title="next chapter">Tool Menu Plugins</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/plugins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

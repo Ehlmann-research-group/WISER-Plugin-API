@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GUI Plugins in WISER &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Band-Math Plugins" href="bandmath_plugins.html" />
+    <link rel="prev" title="Context-Menu Plugins" href="ctxmenu_plugins.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="gui-plugins-in-wiser">
+<h1>GUI Plugins in WISER<a class="headerlink" href="#gui-plugins-in-wiser" title="Link to this heading">¶</a></h1>
+<p>WISER is written using the <a class="reference external" href="https://doc.qt.io/qtforpython-5/">Qt 5 API and the PySide2 Python bindings</a> provided by <a class="reference external" href="https://www.qt.io/">The Qt Company</a>.  Plugins that wish to provide graphical user interfaces
+for configuration or workflow must also use Qt 5 to build this functionality.
+This is likely to be common in tool plugins and context-menu plugins; band-math
+plugins, on the other hand, should not show UI components.</p>
+<section id="using-qt-designer">
+<h2>Using Qt Designer<a class="headerlink" href="#using-qt-designer" title="Link to this heading">¶</a></h2>
+<p>A plugin can construct a Qt user interface programmatically, but it is much
+easier to use <a class="reference external" href="https://doc.qt.io/qt-5/qtdesigner-manual.html">Qt Designer</a> to
+lay out a user interface and save it into a <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file used by the plugin.
+Once a <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file has been created, there are two possible approaches for
+instantiating the UI.  One is to use the <code class="docutils literal notranslate"><span class="pre">PySide2.QUiTools.QUiLoader</span></code> class to
+load the <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file dynamically, and the other is to use <code class="docutils literal notranslate"><span class="pre">pyside2-uic</span></code> to
+generate Python code from the <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file.  Each approach has its benefits and
+drawbacks, which are described below.  The second approach is recommended for
+more sophisticated user interfaces, as it encourages an object-oriented approach
+to the code layout, and it makes it easier to access the widgets that comprise
+the GUI.</p>
+<p>Here is an example configuration UI for a Gaussian blur plugin, which uses
+OpenCV to perform the blurring operation.</p>
+<img alt="_images/qt_designer_gaussian_blur.png" src="_images/qt_designer_gaussian_blur.png" />
+<p>The following sections describe the two main approaches for loading the user
+interface.</p>
+<section id="using-quiloader">
+<h3>Using <code class="docutils literal notranslate"><span class="pre">QUiLoader</span></code><a class="headerlink" href="#using-quiloader" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">QUiLoader</span></code> approach is simple in that your plugin may dynamically load
+the <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file directly.  The benefit is that your plugin’s development and
+build process will be very simple; no additional code-generation steps are
+necessary when you make UI tweaks.  The downside is that your plugin code must
+dynamically look up the various widgets in your UI by name, which is slower and
+a bit more cluttered than generating Python code from the <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file.  This
+approach may be preferable if you have a very simple user interface, with few
+complexities like input validation or event handling.</p>
+<p>WISER provides a helper function for plugins to load <code class="docutils literal notranslate"><span class="pre">.ui</span></code> files:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wiser</span><span class="w"> </span><span class="kn">import</span> <span class="n">plugins</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_exceptions</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GaussianBlurPlugin</span><span class="p">(</span><span class="n">plugins</span><span class="o">.</span><span class="n">ContextMenuPlugin</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="nd">@log_exceptions</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_gaussian_blur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># If the .ui file is in the same location as the .py file, compute</span>
+        <span class="c1"># the path to the .ui file using the module&#39;s __file__ attribute.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;gaussian_blur_config.ui&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Load the .ui file to instantiate the QDialog object.</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">plugins</span><span class="o">.</span><span class="n">load_ui_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">load_ui_file()</span></code> function will record helpful debug information into the
+WISER logs when it runs, and will also log errors and raise exceptions if a
+problem occurs.</p>
+<p>As mentioned before, a minor downside of this approach is the need to look up
+the UI widgets within the dialog.  The code continues:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GaussianBlurPlugin</span><span class="p">(</span><span class="n">plugins</span><span class="o">.</span><span class="n">ContextMenuPlugin</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="nd">@log_exceptions</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_gaussian_blur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span> <span class="c1"># load the dialog, see above</span>
+
+        <span class="c1"># The spinbox that specifies the kernel size.  This value should be</span>
+        <span class="c1"># odd, which is what the helper function _on_kernel_size_changed</span>
+        <span class="c1"># enforces.</span>
+        <span class="n">sbox</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QSpinBox</span><span class="p">,</span> <span class="s1">&#39;spinbox_kernel_size&#39;</span><span class="p">)</span>
+        <span class="n">sbox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">sbox</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span> <span class="p">:</span> <span class="n">_on_kernel_size_changed</span><span class="p">(</span><span class="n">sbox</span><span class="o">=</span><span class="n">sbox</span><span class="p">))</span>
+
+        <span class="c1"># The line-edit to hold the sigma value.  This should be a floating-point</span>
+        <span class="c1"># value, so set up a validator on the field.</span>
+        <span class="n">ledit</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s1">&#39;ledit_sigma&#39;</span><span class="p">)</span>
+        <span class="n">ledit</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="n">QDoubleValidator</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1000000.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">ledit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Show the dialog!</span>
+        <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+            <span class="c1"># Pull the values out of the UI widgets.</span>
+            <span class="n">kernel_size</span> <span class="o">=</span> <span class="n">sbox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ledit</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+
+            <span class="c1"># Compute the Gaussian blur based on the parameters</span>
+            <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_kernel_size_changed</span><span class="p">(</span><span class="n">sbox</span><span class="p">:</span> <span class="n">QSpinBox</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># The value cannot be even.</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">sbox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">sbox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-pyside2-uic">
+<h3>Using <code class="docutils literal notranslate"><span class="pre">pyside2-uic</span></code><a class="headerlink" href="#using-pyside2-uic" title="Link to this heading">¶</a></h3>
+<p>The second way to build a graphical user interface using Qt Designer is to use
+the <code class="docutils literal notranslate"><span class="pre">pyside2-uic</span></code> tool (part of Qt 5/PySide2) to generate Python code from the
+<code class="docutils literal notranslate"><span class="pre">.ui</span></code> file made via Qt Designer.  The benefit is that it’s very easy to access
+the various UI widgets from your Python program, so if you have complex
+workflows or UI interactions, input validation, event handling, etc., then this
+will likely be your preferred approach.  The downside is that you must set up a
+Python development environment that includes Qt 5/PySide2, so that you can use
+the tools that come along with the PySide2 library.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">pyside2-uic</span></code> program to generate Python code from the <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pyside2-uic gaussian_blur_config.ui &gt; ui_gaussian_blur_config.py</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This code-gen step must occur after any change to the <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file, or else
+the changes will not show up when the program runs.</p>
+</div>
+<p>Once this is completed, you can create a new Python class to wrap your user
+interface, and provide whatever customization or helper operations that may be
+needed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.ui_gaussian_blur_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ui_GaussianBlurConfigDialog</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GaussianBlurConfigDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="c1"># Set up the UI state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span> <span class="o">=</span> <span class="n">Ui_GaussianBlurConfigDialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Customize the behavior of specific UI widgets</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">spinbox_kernel_size</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">spinbox_kernel_size</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_kernel_size_changed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">ledit_sigma</span><span class="o">.</span><span class="n">setValidator</span><span class="p">(</span><span class="n">QDoubleValidator</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1000000.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">ledit_sigma</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_kernel_size_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># The value cannot be even.</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">spinbox_kernel_size</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">spinbox_kernel_size</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kernel_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">spinbox_kernel_size</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">ledit_sigma</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>It should be obvious that this approach is completely equivalent to the approach
+of using <code class="docutils literal notranslate"><span class="pre">QUiLoader</span></code>.  However, this approach is more desirable for complex
+user interfaces, as it encourages a more object-oriented approach, and it makes
+it much easier for the code to access individual UI components.</p>
+<p>Since the complexity of managing the dialog is encapsulated in the
+<code class="docutils literal notranslate"><span class="pre">GaussianBlurConfigDialog</span></code> class, the plugin’s main handler function becomes
+very simple:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GaussianBlurPlugin</span><span class="p">(</span><span class="n">plugins</span><span class="o">.</span><span class="n">ContextMenuPlugin</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="nd">@log_exceptions</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_gaussian_blur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">GaussianBlurConfigDialog</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+            <span class="n">kernel_size</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">get_kernel_size</span><span class="p">()</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">get_sigma</span><span class="p">()</span>
+
+            <span class="c1"># Compute the Gaussian blur based on the parameters</span>
+            <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GUI Plugins in WISER</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-qt-designer">Using Qt Designer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ctxmenu_plugins.html" title="previous chapter">Context-Menu Plugins</a></li>
+      <li>Next: <a href="bandmath_plugins.html" title="next chapter">Band-Math Plugins</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/ui_plugins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
