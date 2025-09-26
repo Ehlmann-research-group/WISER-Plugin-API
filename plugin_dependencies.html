@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Plugin Dependencies &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/plugin_dependencies.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Accessing and Modifying WISER State" href="wiser_state.html" />
+    <link rel="prev" title="Band-Math Plugins" href="bandmath_plugins.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="plugin-dependencies">
+<h1>Plugin Dependencies<a class="headerlink" href="#plugin-dependencies" title="Link to this heading">¶</a></h1>
+<p>When making a WISER plugin, you should look to see if any of the dependencies you use match the dependencies for
+the version and platform you’re on. You should pin the dependencies in your plugin to use these dependencies. If you
+do not, your plugin could still work, but unexpected behavior may occur. Below you can find the dependencies for each
+version of WISER and on each platform. ‘Ctrl + F’ / ‘Cmd + F’ is highly recommended to look for packages here.</p>
+<style>
+  /* Collapsible release card styling */
+  .release {
+    border: 3px solid #000;
+    border-radius: 2px;
+    margin: 12px 0;
+    background: #fff;
+  }
+  .release > summary {
+    list-style: none; /* hide default marker */
+    cursor: pointer;
+    padding: 14px 16px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+  }
+  /* Custom caret */
+  .release > summary::before {
+    content: '\25B6'; /* triangle right */
+    display: inline-block;
+    margin-right: 10px;
+    transform: translateY(1px);
+  }
+  .release[open] > summary::before {
+    content: '\25BC'; /* triangle down */
+  }
+  /* Divider bar between stacked items */
+  .release + .release {
+    border-top: 3px solid #000;
+  }
+  .release > div {
+    border-top: 3px solid #000;
+    padding: 12px 16px;
+    background: #fafafa;
+  }
+  .release p {
+    margin: 0.3em 0;
+  }
+  .release a {
+    text-decoration: underline;
+  }
+</style><details class="release">
+  <summary>Release 1.3b1 Dependencies</summary>
+  <div><p>Windows dependencies: <a class="reference download internal" download="" href="_downloads/93e1d1a96f390b65c1b37fee84fb59f6/windows-dependencies.txt"><code class="xref download docutils literal notranslate"><span class="pre">downloadable</span> <span class="pre">text</span> <span class="pre">file</span></code></a></p>
+<p>ARM Mac dependencies: <a class="reference download internal" download="" href="_downloads/ddac83fc2e83cbfd010281a8614b11e3/arm-mac-dependencies.txt"><code class="xref download docutils literal notranslate"><span class="pre">downloadable</span> <span class="pre">text</span> <span class="pre">file</span></code></a></p>
+<p>Intel Mac dependencies: <a class="reference download internal" download="" href="_downloads/d3bf6b9e6d42ad2c6e74d5ed3bae0906/intel-mac-dependencies.txt"><code class="xref download docutils literal notranslate"><span class="pre">downloadable</span> <span class="pre">text</span> <span class="pre">file</span></code></a></p>
+  </div>
+</details></section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="bandmath_plugins.html" title="previous chapter">Band-Math Plugins</a></li>
+      <li>Next: <a href="wiser_state.html" title="next chapter">Accessing and Modifying WISER State</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/plugin_dependencies.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

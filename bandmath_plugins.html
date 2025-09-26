@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/bandmath_plugins.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Accessing and Modifying WISER State" href="wiser_state.html" />
+    <link rel="next" title="Plugin Dependencies" href="plugin_dependencies.html" />
     <link rel="prev" title="GUI Plugins in WISER" href="ui_plugins.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -82,6 +82,7 @@ read on for details.</p>
 Functions must be able to report useful documentation, as well as the type
 of the result based on their input types, so that the user interface can
 provide useful feedback to users.</p>
+<p>This class should be serializable.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.bandmath.BandMathFunction.get_description">
 <span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.bandmath.BandMathFunction.get_description" title="Link to this definition">¶</a></dt>
@@ -213,6 +214,16 @@ cases, the type of the result must be reported with a value from the
 <span class="sig-name descname"><span class="pre">STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.STRING:</span> <span class="pre">7&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.STRING" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.IMAGE_CUBE_BATCH">
+<span class="sig-name descname"><span class="pre">IMAGE_CUBE_BATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.IMAGE_CUBE_BATCH:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.IMAGE_CUBE_BATCH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.bandmath.VariableType.IMAGE_BAND_BATCH">
+<span class="sig-name descname"><span class="pre">IMAGE_BAND_BATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;VariableType.IMAGE_BAND_BATCH:</span> <span class="pre">9&gt;</span></em><a class="headerlink" href="#wiser.bandmath.VariableType.IMAGE_BAND_BATCH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -273,7 +284,6 @@ where metadata is available for use.</p>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tool Menu Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Band-Math Plugins</a><ul>
@@ -284,6 +294,7 @@ where metadata is available for use.</p>
 <li class="toctree-l2"><a class="reference internal" href="#implementation-suggestions">Implementation Suggestions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
 </ul>
@@ -293,7 +304,7 @@ where metadata is available for use.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="ui_plugins.html" title="previous chapter">GUI Plugins in WISER</a></li>
-      <li>Next: <a href="wiser_state.html" title="next chapter">Accessing and Modifying WISER State</a></li>
+      <li>Next: <a href="plugin_dependencies.html" title="next chapter">Plugin Dependencies</a></li>
   </ul></li>
 </ul>
 </div>
