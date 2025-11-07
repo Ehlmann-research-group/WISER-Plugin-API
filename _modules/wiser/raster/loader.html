@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wiser.raster.loader &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/_modules/wiser/raster/loader.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wiser.raster.loader</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osgeo</span><span class="w"> </span><span class="kn">import</span> <span class="n">gdal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">RasterDataSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dataset_impl</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RasterDataImpl</span><span class="p">,</span>
+    <span class="n">ENVI_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">GTiff_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">NumPyRasterDataImpl</span><span class="p">,</span>
+    <span class="n">NetCDF_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">ASC_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">JP2_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">PDS3_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">PDS4_GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">GDALRasterDataImpl</span><span class="p">,</span>
+    <span class="n">JP2_GDAL_PDR_RasterDataImpl</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.fits_loading_dialog</span><span class="w"> </span><span class="kn">import</span> <span class="n">FitsDatasetLoadingDialog</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QDialog</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataCache</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RasterDataLoader">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.raster.RasterDataLoader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RasterDataLoader</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A loader for loading 2D raster data-sets from the local filesystem, using</span>
+<span class="sd">    GDAL (Geospatial Data Abstraction Library) for reading the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># File formats that we recognize.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ENVI&quot;</span><span class="p">:</span> <span class="n">ENVI_GDALRasterDataImpl</span><span class="p">,</span>
+            <span class="s2">&quot;GTiff&quot;</span><span class="p">:</span> <span class="n">GTiff_GDALRasterDataImpl</span><span class="p">,</span>
+            <span class="s2">&quot;NetCDF&quot;</span><span class="p">:</span> <span class="n">NetCDF_GDALRasterDataImpl</span><span class="p">,</span>
+            <span class="s2">&quot;ASCII&quot;</span><span class="p">:</span> <span class="n">ASC_GDALRasterDataImpl</span><span class="p">,</span>
+            <span class="s2">&quot;JP2&quot;</span><span class="p">:</span> <span class="n">JP2_GDALRasterDataImpl</span><span class="p">,</span>
+            <span class="s2">&quot;PDS3&quot;</span><span class="p">:</span> <span class="n">PDS3_GDALRasterDataImpl</span><span class="p">,</span>
+            <span class="s2">&quot;PDS4&quot;</span><span class="p">:</span> <span class="n">PDS4_GDALRasterDataImpl</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># What to do when loading in each file format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_loaders</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">ENVI_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">GTiff_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">NetCDF_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">ASC_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">JP2_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">PDS3_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">PDS4_GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+            <span class="n">GDALRasterDataImpl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_normal_dataset</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># This is a counter so we can generate names for unnamed datasets.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unnamed_datasets</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="RasterDataLoader.load_normal_dataset">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.raster.RasterDataLoader.load_normal_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_normal_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">impl</span><span class="p">:</span> <span class="n">RasterDataImpl</span><span class="p">,</span> <span class="n">data_cache</span><span class="p">:</span> <span class="s2">&quot;DataCache&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RasterDataSet</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The normal way to load in a dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># This returns a list because load_FITS_dataset could possibly return a list</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">RasterDataSet</span><span class="p">(</span><span class="n">impl</span><span class="p">,</span> <span class="n">data_cache</span><span class="p">)]</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_FITS_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">impl</span><span class="p">:</span> <span class="n">RasterDataImpl</span><span class="p">,</span> <span class="n">data_cache</span><span class="p">:</span> <span class="s2">&quot;DataCache&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RasterDataSet</span><span class="p">]:</span>
+        <span class="c1"># We should show the Fits dialog which should return to us</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fits_dialog</span> <span class="o">=</span> <span class="n">FitsDatasetLoadingDialog</span><span class="p">(</span><span class="n">impl</span><span class="p">,</span> <span class="n">data_cache</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fits_dialog</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fits_dialog</span><span class="o">.</span><span class="n">return_datasets</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="RasterDataLoader.load_from_file">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.raster.RasterDataLoader.load_from_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_from_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">data_cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subdataset_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RasterDataSet</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a raster data-set from the specified path.  Returns a</span>
+<span class="sd">        list of :class:`RasterDataSet` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> does not exist!&quot;</span><span class="p">)</span>
+        <span class="c1"># Iterate through all supported formats, and try to use each one to</span>
+        <span class="c1"># load the raster data.</span>
+        <span class="n">impl_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">driver_name</span><span class="p">,</span> <span class="n">impl_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">subdataset_name</span><span class="p">:</span>
+                    <span class="n">impl_list</span> <span class="o">=</span> <span class="n">impl_type</span><span class="o">.</span><span class="n">try_load_file</span><span class="p">(</span>
+                        <span class="n">path</span><span class="p">,</span> <span class="n">subdataset_name</span><span class="o">=</span><span class="n">subdataset_name</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">impl_list</span> <span class="o">=</span> <span class="n">impl_type</span><span class="o">.</span><span class="n">try_load_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t load file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> with driver &quot;</span>
+                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">driver_name</span><span class="si">}</span><span class="s2"> and implementation </span><span class="si">{</span><span class="n">impl_type</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="n">e</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Try luck with gdal</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">impl_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">impl_list</span> <span class="o">=</span> <span class="n">GDALRasterDataImpl</span><span class="o">.</span><span class="n">try_load_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t load file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> with driver &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">driver_name</span><span class="si">}</span><span class="s2"> and implementation </span><span class="si">{</span><span class="n">impl_type</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="n">e</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">impl_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t load file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">:  unsupported format&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Used if a dataset contains multiple subdatasets and we want to load all of them</span>
+        <span class="n">outer_datasets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">impl</span> <span class="ow">in</span> <span class="n">impl_list</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_loaders</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">impl</span><span class="p">)]</span>
+            <span class="n">datasets</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">impl</span><span class="p">,</span> <span class="n">data_cache</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_filepaths</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">subdataset_name</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_subdataset_name</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">subdataset_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">subdataset_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="n">ds</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">outer_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">outer_datasets</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_save_filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ENVI&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;ENVI&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ENVI_GDALRasterDataImpl</span><span class="o">.</span><span class="n">get_save_filenames</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported format &quot;</span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_dataset_as</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ENVI_GDALRasterDataImpl</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;ENVI&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ENVI_GDALRasterDataImpl</span><span class="o">.</span><span class="n">save_dataset_as</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported format &quot;</span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RasterDataLoader.dataset_from_numpy_array">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.raster.RasterDataLoader.dataset_from_numpy_array">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_from_numpy_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="s2">&quot;DataCache&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RasterDataSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a NumPy ndarray, this function returns a RasterDataSet object</span>
+<span class="sd">        that uses the array for its raster data.  The input ndarray must have</span>
+<span class="sd">        three dimensions; they are interpreted as</span>
+<span class="sd">        [spectral][spatial_y][spatial_x].</span>
+
+<span class="sd">        Raises a ValueError if the input array doesn&#39;t have 3 dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;NumPy array must have 3 dimensions&quot;</span><span class="p">)</span>
+
+        <span class="n">impl</span> <span class="o">=</span> <span class="n">NumPyRasterDataImpl</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RasterDataSet</span><span class="p">(</span><span class="n">impl</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_from_gdal_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="s2">&quot;DataCache&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RasterDataSet</span><span class="p">:</span>
+        <span class="n">impl</span> <span class="o">=</span> <span class="n">ENVI_GDALRasterDataImpl</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RasterDataSet</span><span class="p">(</span><span class="n">impl</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div>
+
+
+    <span class="c1"># TODO(donnie):  Not presently needed - can instantiate a NumPyArraySpectrum</span>
+    <span class="c1">#     object from a NumPy array...</span>
+    <span class="c1"># def spectrum_from_numpy_array(self, arr: np.ndarray) -&gt; Spectrum:</span>
+    <span class="c1">#     return None</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

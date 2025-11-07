@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wiser.raster.roi &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/_modules/wiser/raster/roi.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wiser.raster.roi</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.selection</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Selection</span><span class="p">,</span>
+    <span class="n">RectangleSelection</span><span class="p">,</span>
+    <span class="n">PolygonSelection</span><span class="p">,</span>
+    <span class="n">MultiPixelSelection</span><span class="p">,</span>
+    <span class="n">selection_from_pyrep</span><span class="p">,</span>
+    <span class="n">SelectionType</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="n">QRect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtGui</span><span class="w"> </span><span class="kn">import</span> <span class="n">QColor</span>
+
+
+<div class="viewcode-block" id="RegionOfInterest">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegionOfInterest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a Region of Interest (abbreviated &quot;ROI&quot;) in the data being</span>
+<span class="sd">    analyzed.  The Region of Interest may specify multiple selections of various</span>
+<span class="sd">    types, indicating the actual area comprising the ROI.  Various other</span>
+<span class="sd">    attributes may be specified as well, such as the color that the ROI is drawn</span>
+<span class="sd">    in.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;yellow&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Selection</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="RegionOfInterest.get_id">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.set_id">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.set_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ROI[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+<div class="viewcode-block" id="RegionOfInterest.get_name">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.set_name">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.set_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.get_color">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the color of the ROI as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.set_color">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.set_color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.get_description">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_description">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.set_description">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.set_description">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.get_selections">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_selections">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_selections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Selection</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.add_selection">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.add_selection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection</span><span class="p">:</span> <span class="n">Selection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">selection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;selection cannot be None&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.del_selection">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.del_selection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">del_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="p">[</span><span class="n">sel_index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.get_metadata">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.get_all_pixels">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_all_pixels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a Python set containing the coordinates of all pixels that are a</span>
+<span class="sd">        part of this Region of Interest.  Each pixel coordinate will only appear</span>
+<span class="sd">        once, even if the pixel appears within multiple selections in the ROI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_pixels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="p">:</span>
+            <span class="n">all_pixels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sel</span><span class="o">.</span><span class="n">get_all_pixels</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">all_pixels</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.get_bounding_box">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.get_bounding_box">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QRect</span><span class="p">:</span>
+        <span class="n">all_pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_pixels</span><span class="p">()</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_pixels</span><span class="p">]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_pixels</span><span class="p">]</span>
+
+        <span class="n">x_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+        <span class="n">x_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+        <span class="n">y_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+        <span class="n">y_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">QRect</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegionOfInterest.pprint">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RegionOfInterest.pprint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RegionOfInterest[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_selections</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; * </span><span class="si">{</span><span class="n">sel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">roi_to_pyrep</span><span class="p">(</span><span class="n">roi</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
+        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">roi</span><span class="o">.</span><span class="n">get_color</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">()),</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="c1"># TODO(donnie):  Composite/multi-selection ROIs</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;selection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_selection</span><span class="p">()</span><span class="o">.</span><span class="n">to_pyrep</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">roi_from_pyrep</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">QColor</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">])</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+    <span class="c1"># TODO(donnie):  Composite/multi-selection ROIs</span>
+    <span class="n">sel</span> <span class="o">=</span> <span class="n">selection_from_pyrep</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;selection&quot;</span><span class="p">])</span>
+
+    <span class="n">roi</span> <span class="o">=</span> <span class="n">RegionOfInterest</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sel</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">roi</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

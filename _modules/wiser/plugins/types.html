@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wiser.plugins.types &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/_modules/wiser/plugins/types.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wiser.plugins.types</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.gui.app_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplicationState</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMenu</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.bandmath</span><span class="w"> </span><span class="kn">import</span> <span class="n">BandMathValue</span><span class="p">,</span> <span class="n">BandMathFunction</span>
+
+
+<div class="viewcode-block" id="ContextMenuType">
+<a class="viewcode-back" href="../../../ctxmenu_plugins.html#wiser.plugins.ContextMenuType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ContextMenuType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This enumeration specifies the kind of context-menu event that occurred,</span>
+<span class="sd">    so that plugins know what items to add to the menu.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Context-menu display in a raster-view, which probably is showing a</span>
+    <span class="c1"># dataset.  The current dataset is passed to the plugin.</span>
+    <span class="n">RASTER_VIEW</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Context-menu display in the spectrum-plot window.</span>
+    <span class="n">SPECTRUM_PLOT</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># A specific dataset was picked.  This may not be in the context of a</span>
+    <span class="c1"># raster-view window, e.g. if the user right-clicks on a dataset in the info</span>
+    <span class="c1"># viewer.</span>
+    <span class="n">DATASET_PICK</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="c1"># A specific spectrum was picked.  The spectrum is passed to the plugin.</span>
+    <span class="n">SPECTRUM_PICK</span> <span class="o">=</span> <span class="mi">11</span>
+
+    <span class="c1"># A specific ROI was picked.  The ROI is passed, along with the current</span>
+    <span class="c1"># dataset (if available).</span>
+    <span class="n">ROI_PICK</span> <span class="o">=</span> <span class="mi">12</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Plugin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The base type for all WISER plugins.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="ToolsMenuPlugin">
+<a class="viewcode-back" href="../../../toolsmenu_plugins.html#wiser.plugins.ToolsMenuPlugin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolsMenuPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base type for plugins that integrate into the WISER &quot;Tools&quot;</span>
+<span class="sd">    application-menu.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ToolsMenuPlugin.add_tool_menu_items">
+<a class="viewcode-back" href="../../../toolsmenu_plugins.html#wiser.plugins.ToolsMenuPlugin.add_tool_menu_items">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tool_menu_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">wiser</span><span class="p">:</span> <span class="s2">&quot;ApplicationState&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method is called by WISER to allow plugins to add menu actions or</span>
+<span class="sd">        submenus into the Tools application menu.</span>
+
+<span class="sd">        If a plugin provides multiple actions, the developer has several</span>
+<span class="sd">        choices.  If all actions are useful and expected to be invoked</span>
+<span class="sd">        regularly, the actions can be added directly to the Tools menu.  If</span>
+<span class="sd">        some actions are used much less frequently, it is recommended that</span>
+<span class="sd">        these actions be put into a submenu, to keep the Tools menu from</span>
+<span class="sd">        becoming too cluttered.</span>
+
+<span class="sd">        Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to</span>
+<span class="sd">        add sub-menus to the Tools menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ContextMenuPlugin">
+<a class="viewcode-back" href="../../../ctxmenu_plugins.html#wiser.plugins.ContextMenuPlugin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ContextMenuPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base type for plugins that integrate into WISER pop-up context</span>
+<span class="sd">    menus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ContextMenuPlugin.add_context_menu_items">
+<a class="viewcode-back" href="../../../ctxmenu_plugins.html#wiser.plugins.ContextMenuPlugin.add_context_menu_items">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_context_menu_items</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context_type</span><span class="p">:</span> <span class="n">ContextMenuType</span><span class="p">,</span>
+        <span class="n">context_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method is called by WISER when it is constructing a context menu,</span>
+<span class="sd">        so that the plugin can add any menu-actions relevant to the context.</span>
+
+<span class="sd">        The type of context is indicated by the ``context_type`` argument/enum.</span>
+<span class="sd">        Plugins should examine this value and only add menu entries relevant to</span>
+<span class="sd">        the context type, to avoid cluttering up the WISER context menus.  This</span>
+<span class="sd">        is particularly important, as this method may be called multiple times</span>
+<span class="sd">        (with different ``context_type`` values), in the population of a single</span>
+<span class="sd">        context-menu before it is displayed.  For example, it is possible for a</span>
+<span class="sd">        plugin to see calls to this method with ``RASTER_VIEW``, then</span>
+<span class="sd">        ``DATASET_PICK``, then ``ROI_PICK``, in the construction of a single</span>
+<span class="sd">        context menu.</span>
+
+<span class="sd">        Based on the type of context, the ``context`` dictionary will contain</span>
+<span class="sd">        specific key/value pairs relevant to the context, that the plugin may</span>
+<span class="sd">        need for its operation.  The details are specified below.  Besides these</span>
+<span class="sd">        values, the ``context`` dictionary will also always contain a ``wiser``</span>
+<span class="sd">        key that references a :class:`wiser.gui.app_state.ApplicationState` object for</span>
+<span class="sd">        accessing and manipulating WISER&#39;s internal state in specific ways.</span>
+
+<span class="sd">        ``RASTER_VIEW``</span>
+<span class="sd">          Indicates a *general* operation on a dataset within a raster display</span>
+<span class="sd">          window - that is, an operation not related to the cursor location.</span>
+<span class="sd">          The ``context`` dictionary includes these keys:</span>
+
+<span class="sd">          *   ``dataset`` - a reference to the :class:`wiser.raster.RasterDataSet`</span>
+<span class="sd">              object currently being displayed.</span>
+<span class="sd">          *   ``display_bands`` - a tuple of integers specifying the bands</span>
+<span class="sd">              currently being displayed in the raster-view.  This will either</span>
+<span class="sd">              hold 1 element if the display is grayscale, or 3 elements if the</span>
+<span class="sd">              display is red/green/blue.</span>
+
+<span class="sd">        ``SPECTRUM_PLOT``</span>
+<span class="sd">          Indicates a *general* operation within a spectrum-plot window - that</span>
+<span class="sd">          is, not related to a specific spectrum or the cursor location.  The</span>
+<span class="sd">          ``context`` dictionary will not have any additional keys.</span>
+
+<span class="sd">        ``DATASET_PICK``</span>
+<span class="sd">          Indicates a *location-specific* operation on a dataset within a raster</span>
+<span class="sd">          display window - that is, an operation that requires the cursor</span>
+<span class="sd">          location.  The ``context`` dictionary includes these additional keys:</span>
+
+<span class="sd">          *   ``dataset`` - a reference to the :class:`wiser.raster.RasterDataSet`</span>
+<span class="sd">              object currently being displayed.</span>
+<span class="sd">          *   ``display_bands`` - a tuple of integers specifying the bands</span>
+<span class="sd">              currently being displayed in the raster-view.  This will either</span>
+<span class="sd">              hold 1 element if the display is grayscale, or 3 elements if the</span>
+<span class="sd">              display is red/green/blue.</span>
+<span class="sd">          *   ``ds_coord`` - an ``(int, int)`` tuple of the pixel in the dataset</span>
+<span class="sd">              that was picked by the user.</span>
+
+<span class="sd">        ``SPECTRUM_PICK``</span>
+<span class="sd">          Indicates a *spectrum-specific* operation within a spectrum-plot</span>
+<span class="sd">          window.  The ``context`` dictionary will have this additional key:</span>
+
+<span class="sd">          *   ``spectrum`` - a reference to the :class:`wiser.raster.Spectrum`</span>
+<span class="sd">              object that was picked by the user.</span>
+
+<span class="sd">        ``ROI_PICK``</span>
+<span class="sd">          Indicates a *region-of-interest-specific* operation within a raster</span>
+<span class="sd">          display window.  The ``context`` dictionary includes these additional</span>
+<span class="sd">          keys:</span>
+
+<span class="sd">          *   ``dataset`` - a reference to the :class:`wiser.raster.RasterDataSet`</span>
+<span class="sd">              object currently being displayed.</span>
+<span class="sd">          *   ``display_bands`` - a tuple of integers specifying the bands</span>
+<span class="sd">              currently being displayed in the raster-view.  This will either</span>
+<span class="sd">              hold 1 element if the display is grayscale, or 3 elements if the</span>
+<span class="sd">              display is red/green/blue.</span>
+<span class="sd">          *   ``roi`` - a reference to the :class:`wiser.raster.RegionOfInterest`</span>
+<span class="sd">              object that was picked by the user.</span>
+<span class="sd">          *   ``ds_coord`` - an ``(int, int)`` tuple of the pixel in the dataset</span>
+<span class="sd">              that was picked by the user.</span>
+
+<span class="sd">        Plugins should be careful not to hold onto any context references for</span>
+<span class="sd">        too long, as it will generate resource leaks within WISER.  A</span>
+<span class="sd">        recommended pattern for adding menu actions is as follows:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Construct a lambda that is called when the QAction is clicked;</span>
+<span class="sd">            # it traps the context dictionary and passes it to the relevant</span>
+<span class="sd">            # handler.  The context is reclaimed when the QAction goes away.</span>
+<span class="sd">            act = context_menu.addAction(context_menu.tr(&#39;Some task...&#39;))</span>
+<span class="sd">            act.triggered.connect(lambda checked=False: self.on_some_task(context=context))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BandMathPlugin">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.plugins.BandMathPlugin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BandMathPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base type for plugins that provide custom band-math functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="BandMathPlugin.get_bandmath_functions">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.plugins.BandMathPlugin.get_bandmath_functions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bandmath_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BandMathFunction</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a dictionary of all band-math functions provided by</span>
+<span class="sd">        the plugin.</span>
+
+<span class="sd">        The keys are the function names, and must satisfy the parsing</span>
+<span class="sd">        requirements of the band-math parser:  names must start with an</span>
+<span class="sd">        alphabetical character (a-z), and must include only alphanumeric</span>
+<span class="sd">        characters and underscores (a-z, 0-9, _).</span>
+
+<span class="sd">        The values are instances of classes that extend the</span>
+<span class="sd">        :class:`BandMathFunction` type, to provide the various operations</span>
+<span class="sd">        required by band-math functions.</span>
+
+<span class="sd">        Band-math expressions are *case-insensitive*.  Therefore, all function</span>
+<span class="sd">        names specified by a plugin are converted to lowercase when loaded into</span>
+<span class="sd">        the band-math evaluator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

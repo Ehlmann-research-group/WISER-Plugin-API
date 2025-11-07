@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wiser.gui.app_state &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/_modules/wiser/gui/app_state.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wiser.gui.app_state</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMessageBox</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.app_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplicationConfig</span><span class="p">,</span> <span class="n">PixelReticleType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_random_matplotlib_color</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plugin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">RasterDataLoader</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spectrum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectral_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpectralLibrary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.envi_spectral_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">ENVISpectralLibrary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.loaders.envi</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnviFileFormatError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">have_spatial_overlap</span><span class="p">,</span> <span class="n">can_transform_between_srs</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.stretch</span><span class="w"> </span><span class="kn">import</span> <span class="n">StretchBase</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegionOfInterest</span><span class="p">,</span> <span class="n">roi_to_pyrep</span><span class="p">,</span> <span class="n">roi_from_pyrep</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.data_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataCache</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.subprocessing_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiprocessingManager</span><span class="p">,</span> <span class="n">ProcessManager</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.reference_creator_dialog</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrsCreatorState</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">StateChange</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">ITEM_ADDED</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ITEM_EDITED</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ITEM_REMOVED</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_unique_name</span><span class="p">(</span><span class="n">candidate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">used_names</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># If the name is already unique, return it</span>
+    <span class="k">if</span> <span class="n">candidate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">candidate</span>
+
+    <span class="c1"># Try to generate a unique name by tacking a number onto the name</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_names</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name</span>
+
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="ApplicationState">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ApplicationState</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class holds all WISER application state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Signal:  a data-set with the specified ID was added</span>
+    <span class="n">dataset_added</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+
+    <span class="c1"># Signal:  the data-set with the specified ID was removed</span>
+    <span class="n">dataset_removed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Signal: the mainview dataset was changed</span>
+    <span class="n">mainview_dataset_changed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Signal:  a spectral library with the specified ID was added</span>
+    <span class="n">spectral_library_added</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Signal:  the spectral library with the specified ID was removed</span>
+    <span class="n">spectral_library_removed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">roi_added</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">RegionOfInterest</span><span class="p">)</span>
+
+    <span class="n">roi_removed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">RegionOfInterest</span><span class="p">)</span>
+
+    <span class="c1"># Signal:  the contrast stretch was changed for a specific dataset and set</span>
+    <span class="c1">#          of bands.  The first argument is the ID of the dataset, and the</span>
+    <span class="c1">#          second argument is a tuple of bands.</span>
+    <span class="n">stretch_changed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+
+    <span class="c1"># Signal:  the active spectrum changed</span>
+    <span class="n">active_spectrum_changed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">()</span>
+
+    <span class="c1"># TODO(donnie):  collected_spectra_changed = Signal(StateChange, int)</span>
+    <span class="n">collected_spectra_changed</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># TODO(donnie):  Signals for config changes and color changes!</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ApplicationConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># A reference to the overall UI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># The plugins currently loaded into WISER.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Plugin</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raster_data_loader</span> <span class="o">=</span> <span class="n">RasterDataLoader</span><span class="p">()</span>
+
+        <span class="c1"># Source of numeric IDs for assigning to objects in the application</span>
+        <span class="c1"># state.  IDs are unique across all objects, not just for each type of</span>
+        <span class="c1"># object, just for the sake of simplicity.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next_id</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># All datasets loaded in the application.  The key is the numeric ID of</span>
+        <span class="c1"># the data set, and the value is the RasterDataSet object.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Stretches for all data sets are stored here.  The key is a tuple of</span>
+        <span class="c1"># the (dataset ID, band #), and the value is a Stretch object.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stretches</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">StretchBase</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># All spectral libraries loaded in the application.  The key is the</span>
+        <span class="c1"># numeric ID of the spectral library, and the value is the</span>
+        <span class="c1"># SpectralLibrary object.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">SpectralLibrary</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># All regions of interest in the application.  The key is the numeric ID</span>
+        <span class="c1"># of the ROI, and the value is a RegionOfInterest object.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RegionOfInterest</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># A collection of all spectra in the application state, so that we can</span>
+        <span class="c1"># look them up by ID.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Spectrum</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># The &quot;currently active&quot; spectrum, which is set when the user clicks on</span>
+        <span class="c1"># pixels, or wants to view an ROI average spectrum, etc.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spectrum</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># The spectra collected by the user, possibly for export, or conversion</span>
+        <span class="c1"># into a spectral library.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Spectrum</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Configuration state.</span>
+
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">ApplicationConfig</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">:</span> <span class="n">ApplicationConfig</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="c1"># A dictionary holding the CRSs that the user has created.</span>
+        <span class="c1"># The key is the CRS name.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">osr</span><span class="o">.</span><span class="n">SpatialReference</span><span class="p">,</span> <span class="n">CrsCreatorState</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_pool_manager</span> <span class="o">=</span> <span class="n">MultiprocessingManager</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ProcessManager</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_running_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_manager</span><span class="p">:</span> <span class="n">ProcessManager</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="p">[</span><span class="n">process_manager</span><span class="o">.</span><span class="n">get_process_manager_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">process_manager</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_running_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_manager_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="p">[</span><span class="n">process_manager_id</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cancel_all_running_processes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">process_manager</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">process_manager</span><span class="o">.</span><span class="n">get_task</span><span class="p">()</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_running_processes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ProcessManager</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">submit_parallel_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_pool_manager</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_next_process_pool_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_pool_manager</span><span class="o">.</span><span class="n">get_next_process_pool_id</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ApplicationState.take_next_id">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.take_next_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">take_next_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the next ID for use with an object, and also increments the</span>
+<span class="sd">        internal &quot;next ID&quot; value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="n">Plugin</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plugin class &quot;</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s1">&quot; is already added&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">[</span><span class="n">class_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">plugin</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Plugin</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plugins</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ApplicationState.get_loader">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_loader">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the ``RasterDataLoader`` instance being used by WISER to load</span>
+<span class="sd">        data sets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raster_data_loader</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_current_dir">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_current_dir">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_current_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current directory of the application.  This is the last</span>
+<span class="sd">        directory that the user accessed in a load or save operation, so that</span>
+<span class="sd">        the next load or save can start at the same directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_dir</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.set_current_dir">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.set_current_dir">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_current_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the current directory of the application.  This is the last</span>
+<span class="sd">        directory that the user accessed in a load or save operation, so that</span>
+<span class="sd">        the next load or save can start at the same directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_dir</span> <span class="o">=</span> <span class="n">current_dir</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_data_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_cache</span><span class="p">:</span> <span class="n">DataCache</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">data_cache</span>
+
+<div class="viewcode-block" id="ApplicationState.update_cwd_from_path">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.update_cwd_from_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_cwd_from_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This helper function makes it easier to update the current working</span>
+<span class="sd">        directory (CWD) at the end of a file-load or file-save operation.  The</span>
+<span class="sd">        specified path is assumed to be either a directory or a file:</span>
+
+<span class="sd">        *   If it is a directory then the current directory is set to that path.</span>
+<span class="sd">        *   If it is a file then the directory portion of the path is taken and</span>
+<span class="sd">            used for the current directory.</span>
+
+<span class="sd">        The function only updates the current directory if the filesystem</span>
+<span class="sd">        actually reports it as a valid directory.  If the directory can&#39;t be</span>
+<span class="sd">        identified from the specified path (e.g. the OS doesn&#39;t report the path</span>
+<span class="sd">        as a valid directory), this function simply logs a warning.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+            <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_dir</span> <span class="o">=</span> <span class="nb">dir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Couldn</span><span class="se">\&#39;</span><span class="s1">t update CWD from path &quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_status_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">show_status_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_status_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">show_status_text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ApplicationState.open_file">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.open_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A general file-open operation in WISER.  This method can be used</span>
+<span class="sd">        for loading any kind of data file whose type and contents can be</span>
+<span class="sd">        identified automatically.  This operation should not be used for</span>
+<span class="sd">        importing ASCII spectral data, regions of interest, etc. since</span>
+<span class="sd">        WISER cannot identify the file&#39;s contents automatically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Remember the directory of the selected file, for next file-open</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_cwd_from_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="c1"># Is the file a project file?</span>
+
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.wiser&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_project_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Figure out if the user wants to open a raster data set or a</span>
+        <span class="c1"># spectral library.</span>
+
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.sli&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">file_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.hdr&quot;</span><span class="p">):</span>
+            <span class="c1"># ENVI file, possibly a spectral library.  Find out.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Will this work??</span>
+                <span class="n">library</span> <span class="o">=</span> <span class="n">ENVISpectralLibrary</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+                <span class="c1"># Wow it worked!  It must be a spectral library.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_spectral_library</span><span class="p">(</span><span class="n">library</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">except</span> <span class="n">EnviFileFormatError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="c1"># Either the data doesn&#39;t look like a spectral library, or loading</span>
+        <span class="c1"># it as a spectral library didn&#39;t work.  Load it as a regular raster</span>
+        <span class="c1"># data file.</span>
+
+        <span class="n">raster_data_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raster_data_loader</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">data_cache</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">raster_data</span> <span class="ow">in</span> <span class="n">raster_data_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span><span class="n">raster_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.add_dataset">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.add_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">view_dataset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a dataset to the application state.  A unique numeric ID is assigned</span>
+<span class="sd">        to the dataset, which is also set on the dataset itself.</span>
+
+<span class="sd">        The method will fire a signal indicating that the dataset was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">RasterDataSet</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;dataset must be a RasterDataSet&quot;</span><span class="p">)</span>
+
+        <span class="n">ds_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">take_next_id</span><span class="p">()</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">ds_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">ds_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_added</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ds_id</span><span class="p">,</span> <span class="n">view_dataset</span><span class="p">)</span></div>
+
+        <span class="c1"># self.state_changed.emit(tuple(ObjectType.DATASET, ActionType.ADDED, dataset))</span>
+
+<div class="viewcode-block" id="ApplicationState.has_dataset">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.has_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns whether the dataset with the specified numeric ID is in the application state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ds_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_dataset">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RasterDataSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the dataset with the specified numeric ID.  If the ID is</span>
+<span class="sd">        unrecognized then a KeyError will be raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">ds_id</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataCache</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
+
+<div class="viewcode-block" id="ApplicationState.num_datasets">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.num_datasets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of datasets in the application state.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_datasets">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_datasets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RasterDataSet</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of datasets in the application state.  The returned list</span>
+<span class="sd">        is separate from the internal application-state data structures, and</span>
+<span class="sd">        therefore may be mutated by the caller without harm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.remove_dataset">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.remove_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the dataset with the specified numeric ID from the application</span>
+<span class="sd">        state and the cache. If the ID is unrecognized then a KeyError will</span>
+<span class="sd">        be raised.</span>
+
+<span class="sd">        The method will fire a signal indicating that the dataset was removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset_to_del</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">ds_id</span><span class="p">]</span>
+        <span class="n">dataset_to_del</span><span class="o">.</span><span class="n">delete_underlying_dataset</span><span class="p">()</span>
+        <span class="c1"># First we remove it form the computation cache</span>
+        <span class="n">comp_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_computation_cache</span><span class="p">()</span>
+        <span class="n">comp_key</span> <span class="o">=</span> <span class="n">comp_cache</span><span class="o">.</span><span class="n">get_cache_key</span><span class="p">(</span><span class="n">dataset_to_del</span><span class="p">)</span>
+        <span class="n">comp_cache</span><span class="o">.</span><span class="n">remove_cache_item</span><span class="p">(</span><span class="n">comp_key</span><span class="p">)</span>
+
+        <span class="c1"># Next we remove it from the render cache</span>
+        <span class="n">render_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_render_cache</span><span class="p">()</span>
+        <span class="n">render_cache</span><span class="o">.</span><span class="n">clear_keys_from_partial</span><span class="p">(</span><span class="n">render_cache</span><span class="o">.</span><span class="n">get_partial_key</span><span class="p">(</span><span class="n">dataset_to_del</span><span class="p">))</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">ds_id</span><span class="p">]</span>
+        <span class="c1"># Remove all stretches that are associated with this data set</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stretches</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ds_id</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stretches</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ds_id</span><span class="p">)</span></div>
+
+        <span class="c1"># self.state_changed.emit(tuple(ObjectType.DATASET, ActionType.REMOVED, dataset))</span>
+
+<div class="viewcode-block" id="ApplicationState.multiple_datasets_same_size">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.multiple_datasets_same_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiple_datasets_same_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function returns True if there are multiple datasets, and they are</span>
+<span class="sd">        all the same size.  If either of these cases is not true then False is</span>
+<span class="sd">        returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">datasets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">ds0_dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">ds_dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">ds_dim</span> <span class="o">!=</span> <span class="n">ds0_dim</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiple_datasets_link_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">same_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiple_datasets_same_size</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">same_size</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">same_size</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">PIXEL</span>
+
+        <span class="n">datasets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">ds0_srs</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_spatial_ref</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ds0_srs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">NO_LINK</span>
+
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">ds_srs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_spatial_ref</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ds_srs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ds0_srs</span><span class="o">.</span><span class="n">IsSame</span><span class="p">(</span><span class="n">ds_srs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">NO_LINK</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">SPATIAL</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiple_displayed_datasets_link_compatible</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="p">]:</span>
+        <span class="n">displayed_datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">_main_view</span><span class="o">.</span><span class="n">get_visible_datasets</span><span class="p">()</span>
+
+        <span class="n">same_size</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">displayed_datasets</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">NO_LINK</span>
+
+        <span class="c1"># Else, make sure they&#39;re all the same size</span>
+        <span class="n">ds0_dim</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span>
+            <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">ds_dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">ds_dim</span> <span class="o">!=</span> <span class="n">ds0_dim</span><span class="p">:</span>
+                <span class="n">same_size</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">same_size</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">same_size</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">PIXEL</span>
+
+        <span class="n">ds0_srs</span><span class="p">:</span> <span class="n">osr</span><span class="o">.</span><span class="n">SpatialReference</span> <span class="o">=</span> <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_spatial_ref</span><span class="p">()</span>
+        <span class="n">ds0</span> <span class="o">=</span> <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ds0_srs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">NO_LINK</span>
+
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">ds_srs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_spatial_ref</span><span class="p">()</span>
+            <span class="n">can_transform</span> <span class="o">=</span> <span class="n">can_transform_between_srs</span><span class="p">(</span><span class="n">ds0_srs</span><span class="p">,</span> <span class="n">ds_srs</span><span class="p">)</span>
+            <span class="n">have_overlap</span> <span class="o">=</span> <span class="n">have_spatial_overlap</span><span class="p">(</span>
+                <span class="n">ds0_srs</span><span class="p">,</span>
+                <span class="n">ds0</span><span class="o">.</span><span class="n">get_geo_transform</span><span class="p">(),</span>
+                <span class="n">ds0</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span>
+                <span class="n">ds0</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span>
+                <span class="n">ds_srs</span><span class="p">,</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">get_geo_transform</span><span class="p">(),</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ds_srs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">can_transform</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">have_overlap</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">NO_LINK</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">GeographicLinkState</span><span class="o">.</span><span class="n">SPATIAL</span>
+
+<div class="viewcode-block" id="ApplicationState.multiple_displayed_datasets_same_size">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.multiple_displayed_datasets_same_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiple_displayed_datasets_same_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function returns True if there are multiple visible datasets and</span>
+<span class="sd">        they are all the same size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get access to the displayed datasets</span>
+        <span class="n">displayed_datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">_main_view</span><span class="o">.</span><span class="n">get_visible_datasets</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">displayed_datasets</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Else, make sure they&#39;re all the same size</span>
+        <span class="n">ds0_dim</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span>
+            <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">displayed_datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">ds_dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">ds_dim</span> <span class="o">!=</span> <span class="n">ds0_dim</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">unique_dataset_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidate</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">ds_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">ds</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+        <span class="n">ds_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_names</span> <span class="k">if</span> <span class="n">name</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">make_unique_name</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">ds_names</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">unique_roi_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidate</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">roi_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span> <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">make_unique_name</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_stretches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">stretches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StretchBase</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stretches</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;bands and stretches must both be the same &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;length (got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">)</span><span class="si">}</span><span class="s2"> bands, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stretches</span><span class="p">)</span><span class="si">}</span><span class="s2"> stretches)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">)):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds_id</span><span class="p">,</span> <span class="n">bands</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">stretch</span> <span class="o">=</span> <span class="n">stretches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stretches</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">stretch</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stretch_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ds_id</span><span class="p">,</span> <span class="n">bands</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stretches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bands</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
+        <span class="c1"># TODO(donnie):  This comment is not a docstring so it will be excluded</span>
+        <span class="c1">#     from the auto-generated docs.</span>
+        <span class="c1"># Returns the current stretches for the specified dataset ID and bands.</span>
+        <span class="c1"># If a band has no stretch specified, its corresponding value will be</span>
+        <span class="c1"># ``None``.</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_stretches</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">ds_id</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ApplicationState.add_spectral_library">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.add_spectral_library">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_spectral_library</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">library</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a spectral library to the application state, assigning a new ID to</span>
+<span class="sd">        the library.  The method will fire a signal indicating that the spectral</span>
+<span class="sd">        library was added, including the ID assigned to the library.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">library</span><span class="p">,</span> <span class="n">SpectralLibrary</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;library must be a SpectralLibrary&quot;</span><span class="p">)</span>
+
+        <span class="n">lib_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">take_next_id</span><span class="p">()</span>
+        <span class="n">library</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">lib_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span><span class="p">[</span><span class="n">lib_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">library</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_library_added</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">lib_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.has_spectral_library">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.has_spectral_library">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_spectral_library</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns whether the spectral library with the specified numeric ID is in the application state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">lib_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_spectral_library">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_spectral_library">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectral_library</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the spectral library with the specified ID.  If the ID is</span>
+<span class="sd">        unrecognized, a KeyError will be raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span><span class="p">[</span><span class="n">lib_id</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.num_spectral_libraries">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.num_spectral_libraries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_spectral_libraries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the number of spectral libraries in the application state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_spectral_libraries">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_spectral_libraries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectral_libraries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all the spectral libraries in the application state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.remove_spectral_library">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.remove_spectral_library">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_spectral_library</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the specified spectral library from the application state.</span>
+<span class="sd">        The method will fire a signal indicating that the spectral library</span>
+<span class="sd">        was removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spectral_libraries</span><span class="p">[</span><span class="n">lib_id</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_library_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">lib_id</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApplicationConfig</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
+
+<div class="viewcode-block" id="ApplicationState.get_config">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the value of the specified config option.  An optional default</span>
+<span class="sd">        value may be specified.</span>
+
+<span class="sd">        Options are specified as a sequence of names separated by dots &#39;.&#39;,</span>
+<span class="sd">        just like a series of object-member accesses on an object hierarchy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">as_type</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.set_config">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.set_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of the specified config option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.add_roi">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.add_roi">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_roi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span><span class="p">,</span> <span class="n">make_name_unique</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Region of Interest to WISER&#39;s state.  A ``ValueError`` is raised</span>
+<span class="sd">        if the ROI does not have a unique name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">roi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ROI cannot be None&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ROI name cannot be None&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Verify that the ROI&#39;s name is unique.</span>
+        <span class="n">names_in_use</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">existing_roi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">names_in_use</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">existing_roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">())</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_in_use</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">make_name_unique</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">u_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">u_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_in_use</span><span class="p">:</span>
+                        <span class="n">roi</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="n">u_name</span><span class="p">)</span>
+                        <span class="k">break</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A region of interest named &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; already exists.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># If the ROI doesn&#39;t have a color, choose a random color for the ROI</span>
+        <span class="c1"># that isn&#39;t already used.</span>
+        <span class="k">if</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_color</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">colors_in_use</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">existing_roi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">colors_in_use</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">existing_roi</span><span class="o">.</span><span class="n">get_color</span><span class="p">())</span>
+
+            <span class="n">color</span> <span class="o">=</span> <span class="n">get_random_matplotlib_color</span><span class="p">(</span><span class="n">colors_in_use</span><span class="p">)</span>
+            <span class="n">roi</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+        <span class="n">roi_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">take_next_id</span><span class="p">()</span>
+        <span class="n">roi</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">roi_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="p">[</span><span class="n">roi_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roi_added</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.remove_roi">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.remove_roi">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_roi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roi_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the specified Region of Interest from WISER&#39;s state.</span>
+<span class="sd">        A ``KeyError`` is raised if no ROI has the specified ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">roi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="p">[</span><span class="n">roi_id</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="p">[</span><span class="n">roi_id</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roi_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_roi">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_roi">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_roi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionOfInterest</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a Region of Interest from WISER&#39;s state.  The caller may</span>
+<span class="sd">        specify an ``id`` keyword-argument to retrieve an ROI by ID, or</span>
+<span class="sd">        a ``name`` keyword-argument to retrieve an ROI by name.  Names are</span>
+<span class="sd">        case-sensitive.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;id&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="n">roi</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Must specify either &quot;id&quot; or &quot;name&quot; keyword argument&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_rois">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_rois">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rois</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RegionOfInterest</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of all Regions of Interest in WISER&#39;s application state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions_of_interest</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.has_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.has_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns whether the spectrum with the specified numeric ID is in the application state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">spectrum_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spectrum</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a spectrum from WISER&#39;s state.  A ``KeyError`` is raised if</span>
+<span class="sd">        the ID doesn&#39;t correspond to a spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">[</span><span class="n">spectrum_id</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_all_spectra">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_all_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves all spectra in thet spectrum plot.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_active_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_active_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_active_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the current active spectrum.  The &quot;active spectrum&quot; is the</span>
+<span class="sd">        spectrum that the user most recently selected, or it may be the</span>
+<span class="sd">        output of a band-math expression, plugin, etc. that computes a spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.set_active_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.set_active_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_active_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">:</span> <span class="n">Spectrum</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the current active spectrum to be the specified spectrum.</span>
+<span class="sd">        The &quot;active spectrum&quot; is the spectrum that the user most recently</span>
+<span class="sd">        selected, or it may be the output of a band-math expression, plugin,</span>
+<span class="sd">        etc. that computes a spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If we already have an active spectrum, remove its ID from the mapping.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">()]</span>
+
+        <span class="c1"># Assign an ID to this spectrum if it doesn&#39;t have one.</span>
+        <span class="k">if</span> <span class="n">spectrum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">take_next_id</span><span class="p">()</span>
+            <span class="n">spectrum</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">spectrum</span>
+
+        <span class="c1"># Store it!  Then fire an event.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span> <span class="o">=</span> <span class="n">spectrum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_spectrum_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.collect_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.collect_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collect_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">:</span> <span class="n">Spectrum</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the specified spectrum to the &quot;collected spectra&quot; group.</span>
+
+<span class="sd">        Note that the specified spectrum cannot be the current &quot;active</span>
+<span class="sd">        spectrum&quot;; if it is, a ``RuntimeError`` will be raised.  The</span>
+<span class="sd">        current &quot;active spectrum&quot; is collected via the</span>
+<span class="sd">        ``collect_active_spectrum()`` method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">spectrum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;spectrum cannot be None&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">spectrum</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Use collect_active_spectrum() to collect the &quot;</span> <span class="o">+</span> <span class="s2">&quot;active spectrum&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Assign an ID to this spectrum if it doesn&#39;t have one.</span>
+        <span class="k">if</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spectrum</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">take_next_id</span><span class="p">())</span>
+
+        <span class="c1"># Store it!  Then fire an event.</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">[</span><span class="n">spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">spectrum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collected_spectra_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">StateChange</span><span class="o">.</span><span class="n">ITEM_ADDED</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.collect_active_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.collect_active_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collect_active_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the current &quot;active spectrum&quot; to the &quot;collected spectra&quot; group.</span>
+
+<span class="sd">        A ``RuntimeError`` will be raised if there is no active spectrum when</span>
+<span class="sd">        this method is called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;There is no active spectrum to collect.&quot;</span><span class="p">)</span>
+
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_spectrum</span>
+
+        <span class="c1"># Causes &quot;active spectrum changed&quot; signal to be emitted</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_active_spectrum</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Causes &quot;collected spectrum changed&quot; signal to be emitted</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collect_spectrum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.get_collected_spectra">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_collected_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_collected_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Spectrum</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current list of collected spectra.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.remove_collected_spectrum">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.remove_collected_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_collected_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a collected spectrum from the list of collected spectra.</span>
+<span class="sd">        The spectrum to remove is specified by a 0-based index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collected_spectra_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">StateChange</span><span class="o">.</span><span class="n">ITEM_REMOVED</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplicationState.remove_all_collected_spectra">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.remove_all_collected_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_all_collected_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes all spectra from the list of collected spectra.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_id</span><span class="p">()]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collected_spectra</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collected_spectra_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">StateChange</span><span class="o">.</span><span class="n">ITEM_REMOVED</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_user_created_crs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_user_created_crs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">osr</span><span class="o">.</span><span class="n">SpatialReference</span><span class="p">,</span> <span class="n">crs_creator_state</span><span class="p">:</span> <span class="s2">&quot;CrsCreatorState&quot;</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">:</span>
+            <span class="c1"># Ask the user whether to overwrite the existing CRS</span>
+            <span class="n">reply</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">question</span><span class="p">(</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="s2">&quot;CRS Already Exists&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A CRS named “</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">” already exists. Overwrite it?&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">crs_creator_state</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">crs_creator_state</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

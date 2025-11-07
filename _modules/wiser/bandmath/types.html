@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wiser.bandmath.types &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/_modules/wiser/bandmath/types.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wiser.bandmath.types</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RasterDataSet</span><span class="p">,</span>
+    <span class="n">RasterDataBand</span><span class="p">,</span>
+    <span class="n">RasterDataDynamicBand</span><span class="p">,</span>
+    <span class="n">RasterDataBatchBand</span><span class="p">,</span>
+    <span class="n">RasterBand</span><span class="p">,</span>
+    <span class="n">SpectralMetadata</span><span class="p">,</span>
+    <span class="n">SpatialMetadata</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spectrum</span>
+
+
+<span class="n">FolderPathType</span> <span class="o">=</span> <span class="nb">str</span>
+<span class="n">BANDMATH_VALUE_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span>
+    <span class="n">RasterDataSet</span><span class="p">,</span>
+    <span class="n">RasterDataBand</span><span class="p">,</span>
+    <span class="n">RasterDataBatchBand</span><span class="p">,</span>
+    <span class="n">Spectrum</span><span class="p">,</span>
+    <span class="n">FolderPathType</span><span class="p">,</span>
+    <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="VariableType">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.VariableType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VariableType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Types of variables that are supported by the band-math functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">IMAGE_CUBE</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">IMAGE_BAND</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">SPECTRUM</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">REGION_OF_INTEREST</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="n">NUMBER</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="n">BOOLEAN</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="n">STRING</span> <span class="o">=</span> <span class="mi">7</span>
+
+    <span class="n">IMAGE_CUBE_BATCH</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="n">IMAGE_BAND_BATCH</span> <span class="o">=</span> <span class="mi">9</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BandMathExprInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class holds information produced by the band-math expression analyzer.</span>
+
+<span class="sd">    This is a value that is used to keep track of the meta data information for</span>
+<span class="sd">    BandMathValues. For example, the resulting type of a*b when a is an image</span>
+<span class="sd">    cube and b is a spectrum would be an image cube.</span>
+
+<span class="sd">    The variables for this class and their purposes are defined below:</span>
+<span class="sd">        # The result-type of the band-math expression.</span>
+<span class="sd">        self.result_type: Optional[VariableType] = result_type</span>
+
+<span class="sd">        # If the result is an array, this is the element type.</span>
+<span class="sd">        self.elem_type: Optional[np.dtype] = None</span>
+
+<span class="sd">        # If the result is an array, this is the shape of the array.</span>
+<span class="sd">        self.shape: Tuple = None</span>
+
+<span class="sd">        # If the result should have spatial metadata (e.g. geographic projection</span>
+<span class="sd">        # info or spatial reference system) associated with it, this is the</span>
+<span class="sd">        # source of that metadata.</span>
+<span class="sd">        self.spatial_metadata_source: SpatialMetadata = None</span>
+
+<span class="sd">        # If the result should have spectral metadata (e.g. band wavelengths)</span>
+<span class="sd">        # associated with it, this is the source of that metadata.</span>
+<span class="sd">        self.spectral_metadata_source: SpectralMetadata = None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># The result-type of the band-math expression.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VariableType</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_type</span>
+
+        <span class="c1"># If the result is an array, this is the element type.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elem_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># If the result is an array, this is the shape of the array.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># If the result should have spatial metadata (e.g. geographic projection</span>
+        <span class="c1"># info or spatial reference system) associated with it, this is that</span>
+        <span class="c1"># metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_metadata_source</span><span class="p">:</span> <span class="n">SpatialMetadata</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># If the result should have spectral metadata (e.g. band wavelengths)</span>
+        <span class="c1"># associated with it, this is that metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectral_metadata_source</span><span class="p">:</span> <span class="n">SpectralMetadata</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">result_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an estimate of this result&#39;s size in bytes.&quot;&quot;&quot;</span>
+        <span class="n">shape_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_type</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">shape_size</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">memo</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">BandMathValue</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">memo</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_type</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_CUBE</span><span class="p">,</span>
+            <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_BAND</span><span class="p">,</span>
+            <span class="n">VariableType</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_type</span><span class="si">}</span><span class="s2">, elem_type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_type</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;shape=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">result_type</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+
+<div class="viewcode-block" id="BandMathValue">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathValue">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BandMathValue</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a value created or consumed by a band-math expression during</span>
+<span class="sd">    evaluation.  The high-level type of the variable is stored, along with the</span>
+<span class="sd">    actual value.  The value may be one of several possible types, since most</span>
+<span class="sd">    band-math operations work directly on NumPy arrays rather than other WISER</span>
+<span class="sd">    types.</span>
+
+<span class="sd">    Whether the band-math value is a computed result or not is also recorded in</span>
+<span class="sd">    this type, so that math operations can reuse an argument&#39;s memory where that</span>
+<span class="sd">    would be more efficient.</span>
+
+<span class="sd">    :ivar type: The type of the band-math value.</span>
+<span class="sd">    :ivar value: The value itself.</span>
+<span class="sd">    :ivar computed: If True, the value was computed from an expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">VariableType</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">computed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_intermediate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VariableType</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized variable-type </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span> <span class="n">VariableType</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">BANDMATH_VALUE_TYPE</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">computed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">computed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_intermediate</span> <span class="o">=</span> <span class="n">is_intermediate</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_CUBE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterDataSet</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_BAND</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterBand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Spectrum</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+
+        <span class="c1"># If we got here, we don&#39;t know how to convert the value into a NumPy</span>
+        <span class="c1"># array.</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Don&#39;t know how to get shape of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> value&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_elem_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_CUBE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterDataSet</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_BAND</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterBand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Spectrum</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span>
+
+        <span class="c1"># If we got here, we don&#39;t know how to convert the value into a NumPy</span>
+        <span class="c1"># array.</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Don&#39;t know how to get element-type of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> value&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BandMathValue.as_numpy_array">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathValue.as_numpy_array">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_numpy_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a band-math value is an image cube, image band, or spectrum, this</span>
+<span class="sd">        function returns the value as a NumPy ``ndarray``.  If a band-math</span>
+<span class="sd">        value is some other type, the function raises a ``TypeError``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If the value is already a NumPy array, we are done!</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_CUBE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterDataSet</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_image_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_BAND</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterBand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Spectrum</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span>
+
+        <span class="c1"># If we got here, we don&#39;t know how to convert the value into a NumPy</span>
+        <span class="c1"># array.</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Don&#39;t know how to convert </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;value </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> into a NumPy array&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BandMathValue.as_numpy_array_by_bands">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathValue.as_numpy_array_by_bands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_numpy_array_by_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a band-math value is an image cube, image band, or spectrum, this</span>
+<span class="sd">        function returns the value as a NumPy ``ndarray``.  If a band-math</span>
+<span class="sd">        value is some other type, the function raises a ``TypeError``.</span>
+<span class="sd">        This function should really only be called on image_cubes unless its</span>
+<span class="sd">        called through make_image_cube_compatible_by_bands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If the value is already a NumPy array, we are done!</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># Assumes all numpy arrays have band as the first dimension</span>
+            <span class="n">min_band</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">band_list</span><span class="p">)</span>
+            <span class="n">band_list_base</span> <span class="o">=</span> <span class="p">[</span><span class="n">band</span> <span class="o">-</span> <span class="n">min_band</span> <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="n">band_list</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_CUBE</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">band_list_base</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">band_list_base</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_BAND</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span>
+                <span class="n">band_start</span> <span class="o">=</span> <span class="n">band_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">band_end</span> <span class="o">=</span> <span class="n">band_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">band_start</span> <span class="p">:</span> <span class="n">band_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">arr</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Type value is incorrect, should be&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;IMAGE_CUBE, IMAGE_BAND, OR SPECTRUM&quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_CUBE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterDataSet</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_multiple_band_data</span><span class="p">(</span><span class="n">band_list</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">IMAGE_BAND</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RasterBand</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">VariableType</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Spectrum</span><span class="p">):</span>
+                <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span>
+                <span class="n">band_start</span> <span class="o">=</span> <span class="n">band_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">band_end</span> <span class="o">=</span> <span class="n">band_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">band_start</span> <span class="p">:</span> <span class="n">band_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">arr</span>
+        <span class="c1"># We only want this function to work for numpy arrays and RasterDataSets</span>
+        <span class="c1"># because these can be very big 3D objects</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;This function should only be called on numpy&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;arrays and image cubes, not </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BandMathFunction">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathFunction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BandMathFunction</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The abstract base-class for all band-math functions and built-in operators.</span>
+<span class="sd">    Functions must be able to report useful documentation, as well as the type</span>
+<span class="sd">    of the result based on their input types, so that the user interface can</span>
+<span class="sd">    provide useful feedback to users.</span>
+
+<span class="sd">    This class should be serializable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BandMathFunction.get_description">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathFunction.get_description">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a helpful description of the band-math function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span></div>
+
+
+<div class="viewcode-block" id="BandMathFunction.analyze">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathFunction.analyze">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BandMathExprInfo</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BandMathExprInfo</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given the indicated argument types, this function reports the</span>
+<span class="sd">        result-type of the function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BandMathFunction.apply">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.bandmath.BandMathFunction.apply">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BandMathValue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BandMathValue</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the function to the specified arguments to produce a value.  If</span>
+<span class="sd">        the function gets the wrong number or types of arguments, it should</span>
+<span class="sd">        raise a suitably-typed Exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BandMathEvalError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This subtype of the RuntimeError exception is raised when band-math</span>
+<span class="sd">    evaluation fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

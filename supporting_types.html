@@ -45,14 +45,14 @@ This class provides access to both the data and metadata of a spectral image
 cube.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">RasterDataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">impl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RasterDataImpl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataCache</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">RasterDataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">impl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RasterDataImpl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataCache</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet" title="Link to this definition">¶</a></dt>
 <dd><p>A 2D raster data-set for imaging spectroscopy, possibly with many bands of
 data for each pixel.</p>
 <p>This class is not deep copyable. If you try to deep copy it, you will get
 an reference to the same object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_id">
-<span class="sig-name descname"><span class="pre">get_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_id" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_id" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numeric ID for referring to the data set within the
 application.  A value of <code class="docutils literal notranslate"><span class="pre">None</span></code> indicates that the data-set has not
 yet been assigned an ID.</p>
@@ -60,13 +60,13 @@ yet been assigned an ID.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.set_id">
-<span class="sig-name descname"><span class="pre">set_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.set_id" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.set_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.set_id" title="Link to this definition">¶</a></dt>
 <dd><p>Sets a unique numeric ID for referring to the data set within WISER.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_description">
-<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_description" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_description" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a string description of the dataset that might be specified in
 the raster file’s metadata.  A missing description is indicated by the
 <code class="docutils literal notranslate"><span class="pre">None</span></code> value.</p>
@@ -74,13 +74,13 @@ the raster file’s metadata.  A missing description is indicated by the
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.set_description">
-<span class="sig-name descname"><span class="pre">set_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.set_description" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.set_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.set_description" title="Link to this definition">¶</a></dt>
 <dd><p>Sets the string description of the dataset.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_format">
-<span class="sig-name descname"><span class="pre">get_format</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_format" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_format</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_format" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a string describing the type of raster data file that backs this
 dataset.  The file-type string will be specific to the kind of loader
 used to load the dataset.</p>
@@ -88,7 +88,7 @@ used to load the dataset.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_filepaths">
-<span class="sig-name descname"><span class="pre">get_filepaths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_filepaths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_filepaths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_filepaths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_filepaths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the paths and filenames of all files associated with this raster
 dataset.  This will be an empty list (not <code class="docutils literal notranslate"><span class="pre">None</span></code>) if the data is
 in-memory only, e.g. because it wasn’t yet saved.</p>
@@ -96,59 +96,59 @@ in-memory only, e.g. because it wasn’t yet saved.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_width">
-<span class="sig-name descname"><span class="pre">get_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_width" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_width" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number of pixels per row in the raster data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_height">
-<span class="sig-name descname"><span class="pre">get_height</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_height" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_height</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_height"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_height" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number of rows of data in the raster data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.num_bands">
-<span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.num_bands" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.num_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.num_bands" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number of spectral bands in the raster data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_shape">
-<span class="sig-name descname"><span class="pre">get_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_shape" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_shape" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the shape of the raster data set.  This is always in the order
 <code class="docutils literal notranslate"><span class="pre">(num_bands,</span> <span class="pre">height,</span> <span class="pre">width)</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_elem_type">
-<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dtype</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_elem_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dtype</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_elem_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_elem_type" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the element-type of the raster data set.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_band_memory_size">
-<span class="sig-name descname"><span class="pre">get_band_memory_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_memory_size" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_band_memory_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_band_memory_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_memory_size" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the approximate size of a band of this dataset.
 It’s approximate because this doesn’t account for compression</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_memory_size">
-<span class="sig-name descname"><span class="pre">get_memory_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_memory_size" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_memory_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_memory_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_memory_size" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the approximate size of this dataset.
 It’s approximate because this doesn’t account for compression</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_band_unit">
-<span class="sig-name descname"><span class="pre">get_band_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Unit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_unit" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_band_unit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Unit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_band_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_unit" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the units used for all bands’ wavelengths, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if bands
 do not specify units.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.band_list">
-<span class="sig-name descname"><span class="pre">band_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.band_list" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">band_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.band_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.band_list" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a description of all bands in the data set.  The description is
 formulated as a list of dictionaries, where each dictionary provides
 details about the band.  The list of dictionaries is in the same order
@@ -171,14 +171,14 @@ the data-set’s internal state.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.has_wavelengths">
-<span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.has_wavelengths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.has_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.has_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if all bands specify a wavelength (or some other unit
 that can be converted to wavelength); otherwise, returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.default_display_bands">
-<span class="sig-name descname"><span class="pre">default_display_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.default_display_bands" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">default_display_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.default_display_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.default_display_bands" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a tuple of integer indexes, specifying the default bands for
 display.  If the list has 3 values, these are displayed using the red,
 green and blue channels of an image.  If the list has 1 value, the band
@@ -189,7 +189,7 @@ is displayed as grayscale.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_data_ignore_value">
-<span class="sig-name descname"><span class="pre">get_data_ignore_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_data_ignore_value" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_data_ignore_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_data_ignore_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_data_ignore_value" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number that indicates a value to be ignored in the dataset.
 If this value is unknown or unspecified in the data, <code class="docutils literal notranslate"><span class="pre">None</span></code> is
 returned.</p>
@@ -197,7 +197,7 @@ returned.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_bad_bands">
-<span class="sig-name descname"><span class="pre">get_bad_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_bad_bands" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_bad_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_bad_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_bad_bands" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a “bad band list” as a list of 0 or 1 integer values, with the
 same number of elements as the total number of bands in the dataset.
 A value of 0 means the band is “bad,” and a value of 1 means the band is
@@ -208,7 +208,7 @@ returned list will not affect the raster data set.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_image_data">
-<span class="sig-name descname"><span class="pre">get_image_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_image_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_image_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_image_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_image_data" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 3D array of the entire image cube.</p>
 <p>The numpy array is configured such that the pixel (x, y) values of band
 b are at element array[b][y][x].</p>
@@ -220,7 +220,7 @@ filtering will impact performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_image_data_subset">
-<span class="sig-name descname"><span class="pre">get_image_data_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dband</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_image_data_subset" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_image_data_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dband</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_image_data_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_image_data_subset" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a 3D numpy array of values specified starting at x, y, and band
 and going until x+dx, y+dy, band+dband. The d variables are exclusive.</p>
 <p>Data returned is in format arr[b][y][x]</p>
@@ -228,7 +228,7 @@ and going until x+dx, y+dy, band+dband. The d variables are exclusive.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_band_data">
-<span class="sig-name descname"><span class="pre">get_band_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_band_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_band_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_data" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 2D array of the specified band’s data.  The first band
 is at index 0.</p>
 <p>The numpy array is configured such that the pixel (x, y) values are at
@@ -241,7 +241,7 @@ filtering will impact performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_band_data_normalized">
-<span class="sig-name descname"><span class="pre">get_band_data_normalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_data_normalized" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_band_data_normalized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_band_data_normalized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_data_normalized" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 2D array of the specified band’s data. The first band
 is at index 0.</p>
 <p>The numpy array is configured such that the pixel (x, y) values are at
@@ -254,7 +254,7 @@ filtering will impact performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.sample_band_data">
-<span class="sig-name descname"><span class="pre">sample_band_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.sample_band_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sample_band_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.sample_band_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.sample_band_data" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 2D array of the specified band’s data.  The first band
 is at index 0.</p>
 <p>The numpy array is configured such that the pixel (x, y) values are at
@@ -267,7 +267,7 @@ filtering will impact performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_multiple_band_data">
-<span class="sig-name descname"><span class="pre">get_multiple_band_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_multiple_band_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_multiple_band_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_multiple_band_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_multiple_band_data" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 3D array of the specified images band data for all pixels in those
 bands.
 The numpy array is configured such that the pixel (x, y) for band b values are at
@@ -280,14 +280,14 @@ filtering will impact performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_band_stats">
-<span class="sig-name descname"><span class="pre">get_band_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_stats" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_band_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MaskedArray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_band_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_band_stats" title="Link to this definition">¶</a></dt>
 <dd><p>Returns statistics of the specified band’s data, wrapped in a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">BandStats</span></code> object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_all_bands_at">
-<span class="sig-name descname"><span class="pre">get_all_bands_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_all_bands_at" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_all_bands_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_all_bands_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_all_bands_at" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 1D array of the values of all bands at the specified
 (x, y) coordinate in the raster data.</p>
 <p>If filter_bad_values is set to True, bands that are marked as “bad” in
@@ -297,7 +297,7 @@ will also be set to NaN.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_all_bands_at_rect">
-<span class="sig-name descname"><span class="pre">get_all_bands_at_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_all_bands_at_rect" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_all_bands_at_rect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_bad_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_all_bands_at_rect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_all_bands_at_rect" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 2D array of the values of all bands at the specified
 rectangle in the raster data.
 If filter_bad_values is set to True, bands that are marked as “bad” in
@@ -307,7 +307,7 @@ will also be set to NaN.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_geo_transform">
-<span class="sig-name descname"><span class="pre">get_geo_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_geo_transform" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_geo_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_geo_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_geo_transform" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the geographic transform for this dataset as a 6-tuple of
 floats.  The geographic transform is used to map pixel coordinates to
 linear geographic coordinates, and is always an affine transformation.
@@ -322,23 +322,23 @@ on how to interpret this value.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_spatial_ref">
-<span class="sig-name descname"><span class="pre">get_spatial_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SpatialReference</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_spatial_ref" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_spatial_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SpatialReference</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_spatial_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_spatial_ref" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the GDAL spatial reference system used for this dataset, or
 <code class="docutils literal notranslate"><span class="pre">None</span></code> if the dataset doesn’t have a spatial reference system.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.cache_band_stats">
-<span class="sig-name descname"><span class="pre">cache_band_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.cache_band_stats" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">cache_band_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.cache_band_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.cache_band_stats" title="Link to this definition">¶</a></dt>
 <dd><p>Stores the band stats in this dataset’s cache for band stats</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.is_pixel_in_image_bounds">
-<span class="sig-name descname"><span class="pre">is_pixel_in_image_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.is_pixel_in_image_bounds" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">is_pixel_in_image_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.is_pixel_in_image_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.is_pixel_in_image_bounds" title="Link to this definition">¶</a></dt>
 <dd><p>Checks to see if the pixel is in the bounds of the image.</p>
-<p>The 0th index of pixel corresponds to the width (x-coordinate) and the 1st index 
-corresponds to the height (y-coordinate). The coordinate (0, 0) is the top left 
+<p>The 0th index of pixel corresponds to the width (x-coordinate) and the 1st index
+corresponds to the height (y-coordinate). The coordinate (0, 0) is the top left
 most valid pixel.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><ul class="simple">
@@ -352,7 +352,7 @@ most valid pixel.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.is_spatial_coord_in_spatial_bounds">
-<span class="sig-name descname"><span class="pre">is_spatial_coord_in_spatial_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spatial_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.is_spatial_coord_in_spatial_bounds" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">is_spatial_coord_in_spatial_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spatial_coord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.is_spatial_coord_in_spatial_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.is_spatial_coord_in_spatial_bounds" title="Link to this definition">¶</a></dt>
 <dd><p>Checks to see if the spatial coordinate is in the spatial bounds of the image.</p>
 <p>The 0th index of spatial_coord corresponds to the x coordinate in spatial terms,
 and the 1st index corresponds to the y coordinate. The spatial extent of the image is
@@ -370,19 +370,22 @@ the image dimensions from self.get_width() (x direction) and self.get_height() (
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.determine_link_state">
-<span class="sig-name descname"><span class="pre">determine_link_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeographicLinkState</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.determine_link_state" title="Link to this definition">¶</a></dt>
-<dd><p>Tests to see if the passed in dataset is compatible to link with the current dataset
-Returns:</p>
-<blockquote>
-<div><p>0 is no link,
-1 is pixel link, 
-2 is spatial link</p>
-</div></blockquote>
+<span class="sig-name descname"><span class="pre">determine_link_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeographicLinkState</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.determine_link_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.determine_link_state" title="Link to this definition">¶</a></dt>
+<dd><p>Tests to see if the passed in dataset is compatible to link with the current dataset</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>dataset (RasterDataSet):</dt><dd><p>The dataset that we want to determine our dataset’s link state with</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>GeographicLinkState: 0 is no link, 1 is pixel link, 2 is spatial link</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.copy_spatial_metadata">
-<span class="sig-name descname"><span class="pre">copy_spatial_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpatialMetadata</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.copy_spatial_metadata" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">copy_spatial_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpatialMetadata</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.copy_spatial_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.copy_spatial_metadata" title="Link to this definition">¶</a></dt>
 <dd><p>Copy the spatial metadata from the SpatialMetadata object.</p>
 <p>The spatial metadata includes the geographical transform, and the
 spatial reference system, if the raster has one.  Any mutable values are
@@ -392,7 +395,7 @@ this object.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.show_edit_dataset_dialog">
-<span class="sig-name descname"><span class="pre">show_edit_dataset_dialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.show_edit_dataset_dialog" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">show_edit_dataset_dialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.show_edit_dataset_dialog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.show_edit_dataset_dialog" title="Link to this definition">¶</a></dt>
 <dd><p>Creates an edit dataset dialog menu. Should have a label at the top that
 says none of the changes persist on disk. THey only persist for this session.</p>
 <p>Should have a section under this with a label</p>
@@ -400,31 +403,33 @@ says none of the changes persist on disk. THey only persist for this session.</p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.update_band_info">
-<span class="sig-name descname"><span class="pre">update_band_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataSet.update_band_info" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_band_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.update_band_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.update_band_info" title="Link to this definition">¶</a></dt>
 <dd><p>Updates the band information for this dataset. Updates the units and
 the _band_info field. These changes do not persist across sessions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.deserialize_into_class">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_into_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_serialize_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.deserialize_into_class" title="Link to this definition">¶</a></dt>
-<dd><p>We need to properly open up the dataset, if it is a subdataset, then we need to properly
-open that subdataset.</p>
-<dl>
-<dt>Args:</dt><dd><ul class="simple">
-<li><p>dataset_serialize_value: A string that represents the file path to the dataset, or a numpy array</p></li>
-</ul>
-<p>that represents the data in the dataset.
-- dataset_metadata: A dictionary that represents the metadata needed to recreate this object.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_into_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_serialize_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.deserialize_into_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.deserialize_into_class" title="Link to this definition">¶</a></dt>
+<dd><p>We need to properly open up the dataset, if it is a subdataset, then we need
+to properly open that subdataset.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>dataset_serialize_value (Union[str, np.ndarray]):</dt><dd><p>A string that represents the file path to the dataset, or a numpy array
+that represents the data in the dataset.</p>
 </dd>
-<dt>Returns:</dt><dd><p>A RasterDataSet object that represents the dataset.</p>
+<dt>dataset_metadata (Dict):</dt><dd><p>A dictionary that represents the metadata needed to recreate this object.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>RasterDataSet: Takes the passed in parameters and reconstructs a dataset ojbect.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.copy_serialized_metadata_from">
-<span class="sig-name descname"><span class="pre">copy_serialized_metadata_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.copy_serialized_metadata_from" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">copy_serialized_metadata_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.copy_serialized_metadata_from"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.copy_serialized_metadata_from" title="Link to this definition">¶</a></dt>
 <dd><p>Copies the metadata from the dataset_metadata dictionary into this object. This
 is useful when reconstructing RasterDataSet objects meta data in another process.
 This is needed because the user can change the in memory copy of the RasterDataSet
@@ -434,7 +439,7 @@ not get this changed metadata.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_serialized_form">
-<span class="sig-name descname"><span class="pre">get_serialized_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedForm</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataSet.get_serialized_form" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_serialized_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedForm</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_serialized_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_serialized_form" title="Link to this definition">¶</a></dt>
 <dd><p>Gives a tuple that represents all of the data needed to recreate this object.
 The first element is this class, so we can get the deserialize_into_class function
 The second element is a string that represents the file path to the dataset, or a numpy array
@@ -458,18 +463,18 @@ class.  This class is a simple wrapper of a
 referenced band.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataBand">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">RasterDataBand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.RasterDataBand" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">RasterDataBand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.raster.RasterDataSet" title="wiser.raster.dataset.RasterDataSet"><span class="pre">RasterDataSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataBand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataBand" title="Link to this definition">¶</a></dt>
 <dd><p>A helper class to represent a single band of a raster data set. This is a
 simple wrapper around class:RasterDataSet that also tracks a single band.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataBand.get_band_index">
-<span class="sig-name descname"><span class="pre">get_band_index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataBand.get_band_index" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_band_index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataBand.get_band_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataBand.get_band_index" title="Link to this definition">¶</a></dt>
 <dd><p>Return the 0-based index of the band in the backing data set.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataBand.get_data">
-<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataBand.get_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_data_ignore_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataBand.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataBand.get_data" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a numpy 2D array of this band’s data.</p>
 <p>The numpy array is configured such that the pixel (x, y) values are at
 element <code class="docutils literal notranslate"><span class="pre">array[y][x]</span></code>.</p>
@@ -481,20 +486,21 @@ filtering will impact performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataBand.get_stats">
-<span class="sig-name descname"><span class="pre">get_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BandStats</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataBand.get_stats" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BandStats</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataBand.get_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataBand.get_stats" title="Link to this definition">¶</a></dt>
 <dd><p>Returns statistics of this band’s data, wrapped in a class:BandStats
 object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataBand.deserialize_into_class">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_into_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.raster.RasterDataBand" title="wiser.raster.dataset.RasterDataBand"><span class="pre">RasterDataBand</span></a></span></span><a class="headerlink" href="#wiser.raster.RasterDataBand.deserialize_into_class" title="Link to this definition">¶</a></dt>
-<dd><p>This should recreate the object from the serialized form that is obtained from the get_serialized_form method.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_into_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.raster.RasterDataBand" title="wiser.raster.dataset.RasterDataBand"><span class="pre">RasterDataBand</span></a></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataBand.deserialize_into_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataBand.deserialize_into_class" title="Link to this definition">¶</a></dt>
+<dd><p>This should recreate the object from the serialized form that is
+obtained from the get_serialized_form method.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataBand.get_serialized_form">
-<span class="sig-name descname"><span class="pre">get_serialized_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedForm</span></span></span><a class="headerlink" href="#wiser.raster.RasterDataBand.get_serialized_form" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_serialized_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedForm</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataBand.get_serialized_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataBand.get_serialized_form" title="Link to this definition">¶</a></dt>
 <dd><p>Gives a tuple that represents all of the data needed to recreate this object.
 The first element is this class, so we can get the deserialize_into_class function
 The second element is a string that represents the file path to the dataset, or a numpy array
@@ -514,63 +520,63 @@ a pixel in an image, and so forth.  The base-type of all these different kinds
 of spectra is the <code class="docutils literal notranslate"><span class="pre">Spectrum</span></code> class:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><a class="headerlink" href="#wiser.raster.Spectrum" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum" title="Link to this definition">¶</a></dt>
 <dd><p>The base class for representing spectra of interest to the user of the
 application.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_source_name">
-<span class="sig-name descname"><span class="pre">get_source_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_source_name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_source_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_source_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_source_name" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the name of the spectrum’s source.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.num_bands">
-<span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.num_bands" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.num_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.num_bands" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number of spectral bands in the spectrum.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_shape">
-<span class="sig-name descname"><span class="pre">get_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_shape" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_shape" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the shape of the spectrum.  This is always simply
 <code class="docutils literal notranslate"><span class="pre">(num_bands)</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_elem_type">
-<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dtype</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_elem_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dtype</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_elem_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_elem_type" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the element-type of the spectrum.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.has_wavelengths">
-<span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.has_wavelengths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.has_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.has_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns True if this spectrum has wavelength units for all bands, False
 otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_wavelengths">
-<span class="sig-name descname"><span class="pre">get_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_wavelengths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a list of wavelength values corresponding to each band.  The
 individual values are astropy values-with-units.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_wavelength_units">
-<span class="sig-name descname"><span class="pre">get_wavelength_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Unit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_wavelength_units" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_wavelength_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Unit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_wavelength_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_wavelength_units" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the astropy unit corresponding to the wavelength.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_spectrum">
-<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_spectrum" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_spectrum" title="Link to this definition">¶</a></dt>
 <dd><p>Return the spectrum data as a 1D NumPy array.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_serialized_form">
-<span class="sig-name descname"><span class="pre">get_serialized_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedForm</span></span></span><a class="headerlink" href="#wiser.raster.Spectrum.get_serialized_form" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_serialized_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SerializedForm</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_serialized_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_serialized_form" title="Link to this definition">¶</a></dt>
 <dd><p>This should return all of the information needed to recreate this object.
 The first element is this class, so we can get the deserialize_into_class function
 The second element is a string that represents the file path to the dataset, or a numpy array
@@ -580,8 +586,9 @@ the metadata needed to recreate this object.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.deserialize_into_class">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_into_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrum_arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.raster.NumPyArraySpectrum" title="wiser.raster.spectrum.NumPyArraySpectrum"><span class="pre">NumPyArraySpectrum</span></a></span></span><a class="headerlink" href="#wiser.raster.Spectrum.deserialize_into_class" title="Link to this definition">¶</a></dt>
-<dd><p>This should recreate the object from the serialized form that is obtained from the get_serialized_form method.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_into_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectrum_arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wiser.raster.NumPyArraySpectrum" title="wiser.raster.spectrum.NumPyArraySpectrum"><span class="pre">NumPyArraySpectrum</span></a></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.deserialize_into_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.deserialize_into_class" title="Link to this definition">¶</a></dt>
+<dd><p>This should recreate the object from the serialized form that is obtained from the
+get_serialized_form method.</p>
 </dd></dl>
 
 </dd></dl>
@@ -592,59 +599,59 @@ the metadata needed to recreate this object.</p>
 <code class="docutils literal notranslate"><span class="pre">NumPyArraySpectrum</span></code> subclass:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">NumPyArraySpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discardable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">NumPyArraySpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discardable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum" title="Link to this definition">¶</a></dt>
 <dd><p>This class represents a spectrum that wraps a simple 1D NumPy array.  This
 is generally used for computed spectra.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_name">
-<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_name" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the current name of the spectrum, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no name has
 been assigned.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.set_name">
-<span class="sig-name descname"><span class="pre">set_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.set_name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.set_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.set_name" title="Link to this definition">¶</a></dt>
 <dd><p>Sets the name of the spectrum.  <code class="docutils literal notranslate"><span class="pre">None</span></code> may be specified if the
 spectrum is to be unnamed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_source_name">
-<span class="sig-name descname"><span class="pre">get_source_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_source_name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_source_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_source_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_source_name" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the name of the spectrum’s source, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no source
 name has been specified.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_elem_type">
-<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dtype</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_elem_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dtype</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_elem_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_elem_type" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the element-type of the spectrum.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.num_bands">
-<span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.num_bands" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.num_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.num_bands" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number of spectral bands in the spectrum.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.has_wavelengths">
-<span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.has_wavelengths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.has_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.has_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns True if this spectrum has wavelength units for all bands, False
 otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_wavelengths">
-<span class="sig-name descname"><span class="pre">get_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_wavelengths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a list of wavelength values corresponding to each band.  The
 individual values are astropy values-with-units.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.set_wavelengths">
-<span class="sig-name descname"><span class="pre">set_wavelengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.set_wavelengths" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_wavelengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.set_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.set_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Sets the wavelength values that correspond to each band.  The argument
 is a list of astropy values-with-units.  Alternately, this method may
 be used to clear the wavelength information, by passing in <code class="docutils literal notranslate"><span class="pre">None</span></code> as
@@ -653,19 +660,113 @@ the argument.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_wavelength_units">
-<span class="sig-name descname"><span class="pre">get_wavelength_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Unit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_wavelength_units" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_wavelength_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Unit</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_wavelength_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_wavelength_units" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the astropy unit corresponding to the wavelength.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_spectrum">
-<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_spectrum" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_spectrum" title="Link to this definition">¶</a></dt>
 <dd><p>Return the spectrum data as a 1D NumPy array.</p>
 </dd></dl>
 
 </dd></dl>
 
 </section>
+</section>
+<section id="region-of-interest">
+<h2>Region Of Interest<a class="headerlink" href="#region-of-interest" title="Link to this heading">¶</a></h2>
+<p>A region of interest that is draw on the screen is represented by the <code class="docutils literal notranslate"><span class="pre">Region</span> <span class="pre">Of</span> <span class="pre">Interest</span></code>
+class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.raster.</span></span><span class="sig-name descname"><span class="pre">RegionOfInterest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'yellow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a Region of Interest (abbreviated “ROI”) in the data being
+analyzed.  The Region of Interest may specify multiple selections of various
+types, indicating the actual area comprising the ROI.  Various other
+attributes may be specified as well, such as the color that the ROI is drawn
+in.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_id">
+<span class="sig-name descname"><span class="pre">get_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.set_id">
+<span class="sig-name descname"><span class="pre">set_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.set_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.set_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.set_name">
+<span class="sig-name descname"><span class="pre">set_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.set_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.set_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_color">
+<span class="sig-name descname"><span class="pre">get_color</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_color" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the color of the ROI as a string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.set_color">
+<span class="sig-name descname"><span class="pre">set_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.set_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.set_color" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.set_description">
+<span class="sig-name descname"><span class="pre">set_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.set_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.set_description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_selections">
+<span class="sig-name descname"><span class="pre">get_selections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Selection</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_selections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_selections" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.add_selection">
+<span class="sig-name descname"><span class="pre">add_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Selection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.add_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.add_selection" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.del_selection">
+<span class="sig-name descname"><span class="pre">del_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sel_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.del_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.del_selection" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_metadata" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_all_pixels">
+<span class="sig-name descname"><span class="pre">get_all_pixels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_all_pixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_all_pixels" title="Link to this definition">¶</a></dt>
+<dd><p>Return a Python set containing the coordinates of all pixels that are a
+part of this Region of Interest.  Each pixel coordinate will only appear
+once, even if the pixel appears within multiple selections in the ROI.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.get_bounding_box">
+<span class="sig-name descname"><span class="pre">get_bounding_box</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">QRect</span></span></span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.get_bounding_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.get_bounding_box" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RegionOfInterest.pprint">
+<span class="sig-name descname"><span class="pre">pprint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/roi.html#RegionOfInterest.pprint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RegionOfInterest.pprint" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -690,6 +791,7 @@ the argument.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
@@ -698,6 +800,7 @@ the argument.</p>
 <li class="toctree-l2"><a class="reference internal" href="#raster-data-sets">Raster Data Sets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#raster-data-bands">Raster Data Bands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#spectra">Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#region-of-interest">Region Of Interest</a></li>
 </ul>
 </li>
 </ul>

@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/ctxmenu_plugins.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="GUI Plugins in WISER" href="ui_plugins.html" />
+    <link rel="next" title="Tools-Menu Plugins" href="toolsmenu_plugins.html" />
     <link rel="prev" title="WISER Plugins Overview" href="plugins.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -54,12 +54,12 @@ documentation for this class spells out the essential details for interfacing
 with WISER.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.plugins.ContextMenuPlugin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ContextMenuPlugin</span></span><a class="headerlink" href="#wiser.plugins.ContextMenuPlugin" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ContextMenuPlugin</span></span><a class="reference internal" href="_modules/wiser/plugins/types.html#ContextMenuPlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.plugins.ContextMenuPlugin" title="Link to this definition">¶</a></dt>
 <dd><p>This is the base type for plugins that integrate into WISER pop-up context
 menus.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.plugins.ContextMenuPlugin.add_context_menu_items">
-<span class="sig-name descname"><span class="pre">add_context_menu_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.plugins.ContextMenuType" title="wiser.plugins.types.ContextMenuType"><span class="pre">ContextMenuType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_menu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QMenu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.plugins.ContextMenuPlugin.add_context_menu_items" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_context_menu_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wiser.plugins.ContextMenuType" title="wiser.plugins.types.ContextMenuType"><span class="pre">ContextMenuType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_menu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QMenu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/plugins/types.html#ContextMenuPlugin.add_context_menu_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.plugins.ContextMenuPlugin.add_context_menu_items" title="Link to this definition">¶</a></dt>
 <dd><p>This method is called by WISER when it is constructing a context menu,
 so that the plugin can add any menu-actions relevant to the context.</p>
 <p>The type of context is indicated by the <code class="docutils literal notranslate"><span class="pre">context_type</span></code> argument/enum.
@@ -125,7 +125,7 @@ object currently being displayed.</p></li>
 currently being displayed in the raster-view.  This will either
 hold 1 element if the display is grayscale, or 3 elements if the
 display is red/green/blue.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">roi</span></code> - a reference to the <code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.raster.RegionOfInterest</span></code>
+<li><p><code class="docutils literal notranslate"><span class="pre">roi</span></code> - a reference to the <a class="reference internal" href="supporting_types.html#wiser.raster.RegionOfInterest" title="wiser.raster.RegionOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.raster.RegionOfInterest</span></code></a>
 object that was picked by the user.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ds_coord</span></code> - an <code class="docutils literal notranslate"><span class="pre">(int,</span> <span class="pre">int)</span></code> tuple of the pixel in the dataset
 that was picked by the user.</p></li>
@@ -149,7 +149,7 @@ recommended pattern for adding menu actions is as follows:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">ContextMenuType</span></code> enumeration is as follows:</p>
 <dl class="py class enum">
 <dt class="sig sig-object py" id="wiser.plugins.ContextMenuType">
-<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ContextMenuType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wiser.plugins.ContextMenuType" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ContextMenuType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/plugins/types.html#ContextMenuType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.plugins.ContextMenuType" title="Link to this definition">¶</a></dt>
 <dd><p>This enumeration specifies the kind of context-menu event that occurred,
 so that plugins know what items to add to the menu.</p>
 <p>Valid values are as follows:</p>
@@ -181,6 +181,146 @@ so that plugins know what items to add to the menu.</p>
 </dd></dl>
 
 </section>
+<section id="example-context-menu-plugin">
+<h2>Example Context-Menu Plugin<a class="headerlink" href="#example-context-menu-plugin" title="Link to this heading">¶</a></h2>
+<p>Here is an example of a simple context menu plugin.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextMenuPlugin</span><span class="p">,</span> <span class="n">ContextMenuType</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMessageBox</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">HelloContextPlugin</span><span class="p">(</span><span class="n">ContextMenuPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple &quot;Hello world!&quot; example of a context-menu plugin.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_context_menu_items</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context_type</span><span class="p">:</span> <span class="n">ContextMenuType</span><span class="p">,</span>
+        <span class="n">context_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to</span>
+<span class="sd">        add sub-menus to the Tools menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">context_type</span> <span class="o">==</span> <span class="n">ContextMenuType</span><span class="o">.</span><span class="n">RASTER_VIEW</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Context-menu display in a raster-view, which probably is showing a</span>
+<span class="sd">            dataset.  The current dataset is passed to the plugin.</span>
+
+<span class="sd">            Example code to get all necessary pieces of data for this context_type:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            # A RasterDataSet object</span>
+<span class="sd">            dataset = context[&quot;dataset&quot;]</span>
+<span class="sd">            # A 3 or 1 tuple of integers</span>
+<span class="sd">            display_bands = context[&quot;display_bands&quot;]</span>
+<span class="sd">            # Every context_type has the app_state in the &quot;wiser&quot; key</span>
+<span class="sd">            app_state = context[&quot;wiser&quot;]</span>
+<span class="sd">            ```</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">context_type</span> <span class="o">==</span> <span class="n">ContextMenuType</span><span class="o">.</span><span class="n">SPECTRUM_PLOT</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Context-menu display in the spectrum-plot window.</span>
+<span class="sd">            </span>
+<span class="sd">            While this context_type makes the context dict have</span>
+<span class="sd">            no additional keys, we stil have the app_state key:</span>
+
+<span class="sd">            Example code to get all necessary pieces of data for this context_type:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            # Every context_type has the app_state in the &quot;wiser&quot; key</span>
+<span class="sd">            app_state = context[&quot;wiser&quot;]</span>
+<span class="sd">            ```</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">context_type</span> <span class="o">==</span> <span class="n">ContextMenuType</span><span class="o">.</span><span class="n">DATASET_PICK</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            A specific dataset was picked.  This may not be in the context of</span>
+<span class="sd">            a raster-view window, e.g. if the user right-clicks on a dataset</span>
+<span class="sd">            in the info viewer.</span>
+<span class="sd">            </span>
+<span class="sd">            Example code to get all necessary pieces of data for this context_type:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            # A RasterDataSet object</span>
+<span class="sd">            dataset = context[&quot;dataset&quot;]</span>
+<span class="sd">            # A 3 or 1 tuple of integers</span>
+<span class="sd">            display_bands = context[&quot;display_bands&quot;]</span>
+<span class="sd">            # An (int, int) tuple of the clicked pixel in the dataset above</span>
+<span class="sd">            ds_coord = context[&quot;ds_coord&quot;]</span>
+<span class="sd">            # Every context_type has the app_state in the &quot;wiser&quot; key</span>
+<span class="sd">            app_state = context[&quot;wiser&quot;]</span>
+<span class="sd">            ```</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">context_type</span> <span class="o">==</span> <span class="n">ContextMenuType</span><span class="o">.</span><span class="n">SPECTRUM_PICK</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            A specific spectrum was picked.  The spectrum is passed to the</span>
+<span class="sd">            plugin.</span>
+<span class="sd">            </span>
+<span class="sd">            Example code to get all necessary pieces of data for this context_type:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            # A Spectrum object</span>
+<span class="sd">            spectrum = context[&quot;spectrum&quot;]</span>
+<span class="sd">            # Every context_type has the app_state in the &quot;wiser&quot; key</span>
+<span class="sd">            app_state = context[&quot;wiser&quot;]</span>
+<span class="sd">            ```</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">context_type</span> <span class="o">==</span> <span class="n">ContextMenuType</span><span class="o">.</span><span class="n">ROI_PICK</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            A specific ROI was picked.  The ROI is passed, along with the</span>
+<span class="sd">            current dataset (if available).</span>
+<span class="sd">            </span>
+<span class="sd">            Example code to get all necessary pieces of data for this context_type:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            # A RasterDataSet object</span>
+<span class="sd">            dataset = context[&quot;dataset&quot;]</span>
+<span class="sd">            # A 3 or 1 tuple of integers</span>
+<span class="sd">            display_bands = context[&quot;display_bands&quot;]</span>
+<span class="sd">            # A RegionOfInterest object that was picked by the user</span>
+<span class="sd">            roi = context[&quot;roi&quot;]</span>
+<span class="sd">            # An (int, int) tuple of the clicked pixel in the dataset above</span>
+<span class="sd">            ds_coord = context[&quot;ds_coord&quot;]</span>
+<span class="sd">            # Every context_type has the app_state in the &quot;wiser&quot; key</span>
+<span class="sd">            app_state = context[&quot;wiser&quot;]</span>
+<span class="sd">            ```</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">pass</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized context_type value </span><span class="si">{</span><span class="n">context_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">act</span> <span class="o">=</span> <span class="n">context_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Say hello </span><span class="si">{</span><span class="n">context_type</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">act</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">say_hello</span><span class="p">(</span><span class="n">context_type</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_type</span><span class="p">:</span> <span class="n">ContextMenuType</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="n">context_str</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;HelloContextPlugin.say_hello() was called!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; * context_type = </span><span class="si">{</span><span class="n">context_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; * context =</span><span class="se">\n</span><span class="si">{</span><span class="n">textwrap</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">context_str</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;Hello-Context Plugin&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Hello from a </span><span class="si">{</span><span class="n">context_type</span><span class="si">}</span><span class="s2"> context menu!</span><span class="se">\n\n</span><span class="si">{</span><span class="n">context_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -205,8 +345,10 @@ so that plugins know what items to add to the menu.</p>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Context-Menu Plugins</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#the-contextmenuplugin-class">The <code class="docutils literal notranslate"><span class="pre">ContextMenuPlugin</span></code> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-context-menu-plugin">Example Context-Menu Plugin</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
@@ -219,7 +361,7 @@ so that plugins know what items to add to the menu.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="plugins.html" title="previous chapter">WISER Plugins Overview</a></li>
-      <li>Next: <a href="ui_plugins.html" title="next chapter">GUI Plugins in WISER</a></li>
+      <li>Next: <a href="toolsmenu_plugins.html" title="next chapter">Tools-Menu Plugins</a></li>
   </ul></li>
 </ul>
 </div>

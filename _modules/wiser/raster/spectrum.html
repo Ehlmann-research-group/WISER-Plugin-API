@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wiser.raster.spectrum &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/_modules/wiser/raster/spectrum.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wiser.raster.spectrum</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_random_matplotlib_color</span><span class="p">,</span> <span class="n">get_color_icon</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">SpectralMetadata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegionOfInterest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">SelectionType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.serializable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Serializable</span><span class="p">,</span> <span class="n">SerializedForm</span>
+
+
+<span class="c1"># ============================================================================</span>
+<span class="c1"># SPECTRAL CALCULATIONS</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SpectrumAverageMode</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This enumeration specifies the calculation mode when a spectrum is computed</span>
+<span class="sd">    over multiple pixels of a raster data set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compute the mean (average) spectrum over multiple spatial pixels</span>
+    <span class="n">MEAN</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Compute the median spectrum over multiple spatial pixels</span>
+    <span class="n">MEDIAN</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<span class="n">AVG_MODE_NAMES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">:</span> <span class="s2">&quot;Mean&quot;</span><span class="p">,</span>
+    <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEDIAN</span><span class="p">:</span> <span class="s2">&quot;Median&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_rectangles_in_row</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">rectangles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">x</span>  <span class="c1"># Start of a new rectangle</span>
+        <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rectangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">]))</span>  <span class="c1"># End of rectangle</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># If the row ends and a rectangle was still open</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rectangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">rectangles</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raster_to_combined_rectangles_x_axis</span><span class="p">(</span><span class="n">raster</span><span class="p">):</span>
+    <span class="n">rectangles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">previous_row_rectangles</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+    <span class="c1"># prev_row_rect_to_keep = []</span>
+
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">raster</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>  <span class="c1"># For each row (y-coordinate)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">raster</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
+        <span class="n">current_row_rectangles</span> <span class="o">=</span> <span class="n">find_rectangles_in_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="c1"># Get all of the previous rectangles (from previous row or continued on from farther back rows)</span>
+        <span class="c1"># Since we haven&#39;t yet added the previous row&#39;s rectangles to our final set of rectangles, if there</span>
+        <span class="c1"># are no matches with a current rectangle then it is safe to add it in with the final set of rects</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">previous_row_rectangles</span><span class="p">)):</span>
+            <span class="n">prev_rect</span> <span class="o">=</span> <span class="n">previous_row_rectangles</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">prev_x_start</span><span class="p">,</span> <span class="n">prev_x_end</span><span class="p">,</span> <span class="n">prev_y_start</span><span class="p">,</span> <span class="n">prev_y_end</span> <span class="o">=</span> <span class="n">prev_rect</span>
+
+            <span class="n">merged</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># Get all of the rectangles in the current row, we will compare each previous rectangle</span>
+            <span class="c1"># with all the rectangles in the current row. If there is a match in x and y values</span>
+            <span class="c1"># between the previous rectangle and a current row rectangle, then we update the current</span>
+            <span class="c1"># row rectangle&#39;s size to expand. Then when we add this rectangle to previous row rectangles</span>
+            <span class="c1"># it will have carried over.</span>
+            <span class="c1"># If there isn&#39;t a merge, we add the previous rect to rectangles.</span>
+            <span class="k">for</span> <span class="n">curr_rect</span> <span class="ow">in</span> <span class="n">current_row_rectangles</span><span class="p">:</span>
+                <span class="n">x_start</span><span class="p">,</span> <span class="n">x_end</span><span class="p">,</span> <span class="n">y_start</span><span class="p">,</span> <span class="n">y_end</span> <span class="o">=</span> <span class="n">curr_rect</span>
+
+                <span class="c1"># If the current rectangle does match with a previous rectangle</span>
+                <span class="k">if</span> <span class="n">prev_x_start</span> <span class="o">==</span> <span class="n">x_start</span> <span class="ow">and</span> <span class="n">prev_x_end</span> <span class="o">==</span> <span class="n">x_end</span> <span class="ow">and</span> <span class="n">prev_y_end</span> <span class="o">==</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># Merge the current rectangle with the previous one</span>
+                    <span class="n">curr_rect</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev_y_start</span>
+                    <span class="n">merged</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># If the previous rectangle here does not continue from a current rows, we</span>
+            <span class="c1"># immediately add it to rectangles which we can do because we know it</span>
+            <span class="c1"># won&#39;t show up again</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">merged</span><span class="p">:</span>
+                <span class="n">rectangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">prev_rect</span><span class="p">))</span>
+
+        <span class="c1"># We make the previous row rectangles the be the current row to &quot;move on&quot; from this row</span>
+        <span class="c1"># The current rectangles are updated to get merged into the previous ones and nothing is doubly added</span>
+        <span class="n">previous_row_rectangles</span> <span class="o">=</span> <span class="n">current_row_rectangles</span>
+
+    <span class="c1"># For the last row it is never treated as a previous row (which would let it be added to</span>
+    <span class="c1"># rectangles), so we just add it to rectangles</span>
+    <span class="n">rectangles</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">previous_row_rectangles</span><span class="p">)</span>  <span class="c1"># Accumulate merged rectangles</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rectangles</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raster_to_combined_rectangles_y_axis</span><span class="p">(</span><span class="n">raster_y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="n">raster_x</span> <span class="o">=</span> <span class="n">raster_y</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">rectangles_x</span> <span class="o">=</span> <span class="n">raster_to_combined_rectangles_x_axis</span><span class="p">(</span><span class="n">raster_x</span><span class="p">)</span>
+    <span class="n">rectangles_y</span> <span class="o">=</span> <span class="n">rectangles_x</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span> <span class="o">=</span> <span class="n">rectangles_x</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">rectangles_y</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">array_to_qrects</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="n">qrects</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">array</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="c1"># QRect takes (x, y, width, height), so calculate width and height</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">qrects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QRect</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">qrects</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_raster_from_roi</span><span class="p">(</span><span class="n">roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_bounding_box</span><span class="p">()</span>
+    <span class="n">pixels</span> <span class="o">=</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_all_pixels</span><span class="p">()</span>
+
+    <span class="n">xmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">topLeft</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+    <span class="n">ymin</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">topLeft</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
+
+    <span class="n">raster</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">bbox</span><span class="o">.</span><span class="n">height</span><span class="p">(),</span> <span class="n">bbox</span><span class="o">.</span><span class="n">width</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">pixel</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
+        <span class="n">pixel_x</span><span class="p">,</span> <span class="n">pixel_y</span> <span class="o">=</span> <span class="n">pixel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pixel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">pixel_index_x</span><span class="p">,</span> <span class="n">pixel_index_y</span> <span class="o">=</span> <span class="n">pixel_x</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">pixel_y</span> <span class="o">-</span> <span class="n">ymin</span>
+        <span class="n">raster</span><span class="p">[</span><span class="n">pixel_index_y</span><span class="p">][</span><span class="n">pixel_index_x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">raster</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_spectrum_fast</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate a spectrum over a region of interest from the specified dataset.</span>
+<span class="sd">    The calculation mode can be specified with the mode argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># We make a raster out of all of the pixels in the ROI</span>
+    <span class="n">raster</span> <span class="o">=</span> <span class="n">create_raster_from_roi</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span>
+
+    <span class="c1"># We do a variant of the Run Line Encoding (RLE) algorithm in the x direction</span>
+    <span class="c1"># and the y direction</span>
+    <span class="n">rect_x_axis</span> <span class="o">=</span> <span class="n">raster_to_combined_rectangles_x_axis</span><span class="p">(</span><span class="n">raster</span><span class="p">)</span>
+    <span class="n">rect_y_axis</span> <span class="o">=</span> <span class="n">raster_to_combined_rectangles_y_axis</span><span class="p">(</span><span class="n">raster</span><span class="p">)</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">roi</span><span class="o">.</span><span class="n">get_bounding_box</span><span class="p">()</span>
+
+    <span class="n">rects</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rect_x_axis</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rect_y_axis</span><span class="p">):</span>
+        <span class="n">rects</span> <span class="o">=</span> <span class="n">rect_x_axis</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rects</span> <span class="o">=</span> <span class="n">rect_y_axis</span>
+
+    <span class="c1"># We need to make the rectangles we got from the &#39;RLE&#39; algorithm</span>
+    <span class="c1"># be in the image coordinate system</span>
+    <span class="n">rects</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+    <span class="n">rects</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">top</span><span class="p">()</span>
+
+    <span class="c1"># Accessing by rectangular blocks is faster than accessing point by point</span>
+    <span class="n">qrects</span> <span class="o">=</span> <span class="n">array_to_qrects</span><span class="p">(</span><span class="n">rects</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">qrect</span> <span class="ow">in</span> <span class="n">qrects</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_all_bands_at_rect</span><span class="p">(</span><span class="n">qrect</span><span class="o">.</span><span class="n">left</span><span class="p">(),</span> <span class="n">qrect</span><span class="o">.</span><span class="n">top</span><span class="p">(),</span> <span class="n">qrect</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">qrect</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+            <span class="c1"># TODO (Joshua G-K): Make this cleaner. Either check in impl or don&#39;t let user create</span>
+            <span class="c1"># ROIs that go out of bounds.</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">dataset</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">arr</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">ndim</span>
+        <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                    <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 2 or 3 dimensions in rectangular aray, but got </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span>
+        <span class="c1"># Need to compute mean/median/... of the collection of spectra</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">:</span>
+            <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEDIAN</span><span class="p">:</span>
+            <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized average type </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Only one spectrum, don&#39;t need to compute mean/median</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">spectrum</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_rect_spectrum</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">rect</span><span class="p">:</span> <span class="n">QRect</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate a spectrum over a rectangular area of the specified dataset.</span>
+<span class="sd">    The calculation mode can be specified with the mode argument.</span>
+
+<span class="sd">    The rect argument is expected to be a QRect object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="n">rect</span><span class="o">.</span><span class="n">left</span><span class="p">()</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">rect</span><span class="o">.</span><span class="n">top</span><span class="p">()</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span> <span class="k">for</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">rect</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">rect</span><span class="o">.</span><span class="n">height</span><span class="p">())]</span>
+
+    <span class="k">return</span> <span class="n">calc_spectrum</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_spectrum</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">QPoint</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate a spectrum over a collection of points from the specified dataset.</span>
+<span class="sd">    The calculation mode can be specified with the mode argument.</span>
+
+<span class="sd">    The points argument can be any iterable that produces coordinates for this</span>
+<span class="sd">    function to use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Collect the spectra that we need for the calculation</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_all_bands_at</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">spectra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Need to compute mean/median/... of the collection of spectra</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">:</span>
+            <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEDIAN</span><span class="p">:</span>
+            <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized average type </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Only one spectrum, don&#39;t need to compute mean/median</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">spectrum</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_spectra_in_roi</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a raster data set and a region of interest, this function returns an</span>
+<span class="sd">    array of 2-tuples, where each pair is comprised of:</span>
+
+<span class="sd">    *   The pixel&#39;s (x, y) integer coordinates as a 2-tuple</span>
+<span class="sd">    *   A NumPy ndarray object containing the spectrum at that coordinate.</span>
+
+<span class="sd">    Note that the spectral data will include NaNs for any value from a bad band,</span>
+<span class="sd">    or that was set to the &quot;data ignore value&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Generate the set of all pixels in the ROI.  Turn it into a list so we can</span>
+    <span class="c1"># sort it.</span>
+    <span class="n">all_pixels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">roi</span><span class="o">.</span><span class="n">get_all_pixels</span><span class="p">())</span>
+    <span class="n">all_pixels</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="c1"># Generate the collection of spectra at all of those pixels.  Each element</span>
+    <span class="c1"># in the list is the pixel, plus its NumPy</span>
+    <span class="n">all_spectra</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_all_bands_at</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_pixels</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">all_spectra</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_roi_spectrum</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate a spectrum over a Region of Interest from the specified dataset.</span>
+<span class="sd">    The calculation mode can be specified with the mode argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">calc_spectrum_fast</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">roi</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+
+<span class="c1"># ============================================================================</span>
+<span class="c1"># CLASSES TO REPRESENT SPECTRA</span>
+
+
+<div class="viewcode-block" id="Spectrum">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Spectrum</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Serializable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The base class for representing spectra of interest to the user of the</span>
+<span class="sd">    application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># TODO(donnie):  Should these be in this class, or in display code?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_visible</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Spectrum.get_source_name">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_source_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_source_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the name of the spectrum&#39;s source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.num_bands">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.num_bands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of spectral bands in the spectrum.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.get_shape">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the shape of the spectrum.  This is always simply</span>
+<span class="sd">        ``(num_bands)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),)</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.get_elem_type">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_elem_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_elem_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the element-type of the spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.has_wavelengths">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.has_wavelengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if this spectrum has wavelength units for all bands, False</span>
+<span class="sd">        otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.get_wavelengths">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_wavelengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of wavelength values corresponding to each band.  The</span>
+<span class="sd">        individual values are astropy values-with-units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.get_wavelength_units">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_wavelength_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wavelength_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the astropy unit corresponding to the wavelength.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spectrum.get_spectrum">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the spectrum data as a 1D NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_editable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># By default, spectra are editable.</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_discardable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># By default, spectra are discardable.</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Spectrum.get_serialized_form">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_serialized_form">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serialized_form</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SerializedForm</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This should return all of the information needed to recreate this object.</span>
+<span class="sd">        The first element is this class, so we can get the deserialize_into_class function</span>
+<span class="sd">        The second element is a string that represents the file path to the dataset, or a numpy array</span>
+<span class="sd">        that represents the data in the dataset. The third element is a dictionary that represents</span>
+<span class="sd">        the metadata needed to recreate this object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">spectrum_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
+            <span class="s2">&quot;source_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_name</span><span class="p">(),</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">(),</span>
+            <span class="s2">&quot;elem_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">(),</span>
+            <span class="s2">&quot;wavelengths&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">(),</span>
+            <span class="s2">&quot;wavelength_units&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelength_units</span><span class="p">(),</span>
+            <span class="s2">&quot;editable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">(),</span>
+            <span class="s2">&quot;discardable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_discardable</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">SerializedForm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">spectrum_arr</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectral_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpectralMetadata</span><span class="p">:</span>
+        <span class="n">spectral_metadata</span> <span class="o">=</span> <span class="n">SpectralMetadata</span><span class="p">(</span>
+            <span class="n">band_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">bad_bands</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">default_display_bands</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">num_bands</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),</span>
+            <span class="n">data_ignore_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">has_wavelengths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_wavelengths</span><span class="p">(),</span>
+            <span class="n">wavelengths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">(),</span>
+            <span class="n">wavelength_units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_wavelength_units</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">spectral_metadata</span>
+
+<div class="viewcode-block" id="Spectrum.deserialize_into_class">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.deserialize_into_class">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize_into_class</span><span class="p">(</span><span class="n">spectrum_arr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NumPyArraySpectrum&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This should recreate the object from the serialized form that is obtained from the</span>
+<span class="sd">        get_serialized_form method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">source_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;source_name&quot;</span><span class="p">]</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="n">wavelengths</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;wavelengths&quot;</span><span class="p">]</span>
+        <span class="n">editable</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;editable&quot;</span><span class="p">]</span>
+        <span class="n">discardable</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;discardable&quot;</span><span class="p">]</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">NumPyArraySpectrum</span><span class="p">(</span><span class="n">spectrum_arr</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">,</span> <span class="n">editable</span><span class="p">,</span> <span class="n">discardable</span><span class="p">)</span>
+        <span class="n">spectrum</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">spectrum</span></div>
+</div>
+
+
+
+<span class="c1"># ===============================================================================</span>
+<span class="c1"># NUMPY ARRAY SPECTRA</span>
+<span class="c1"># ===============================================================================</span>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NumPyArraySpectrum</span><span class="p">(</span><span class="n">Spectrum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class represents a spectrum that wraps a simple 1D NumPy array.  This</span>
+<span class="sd">    is generally used for computed spectra.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">source_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">wavelengths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">editable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">discardable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arr</span> <span class="o">=</span> <span class="n">arr</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_name</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="k">if</span> <span class="n">source_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_source_name</span> <span class="o">=</span> <span class="n">source_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span> <span class="o">=</span> <span class="n">wavelengths</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_editable</span> <span class="o">=</span> <span class="n">editable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discardable</span> <span class="o">=</span> <span class="n">discardable</span>
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_name">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current name of the spectrum, or ``None`` if no name has</span>
+<span class="sd">        been assigned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.set_name">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.set_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the name of the spectrum.  ``None`` may be specified if the</span>
+<span class="sd">        spectrum is to be unnamed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_source_name">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_source_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_source_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the name of the spectrum&#39;s source, or ``None`` if no source</span>
+<span class="sd">        name has been specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_name</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_source_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_name</span> <span class="o">=</span> <span class="n">name</span>
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_elem_type">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_elem_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_elem_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the element-type of the spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arr</span><span class="o">.</span><span class="n">dtype</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.num_bands">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.num_bands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of spectral bands in the spectrum.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.has_wavelengths">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.has_wavelengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if this spectrum has wavelength units for all bands, False</span>
+<span class="sd">        otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_wavelengths">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_wavelengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of wavelength values corresponding to each band.  The</span>
+<span class="sd">        individual values are astropy values-with-units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Spectrum doesn&#39;t have wavelengths&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.set_wavelengths">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.set_wavelengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the wavelength values that correspond to each band.  The argument</span>
+<span class="sd">        is a list of astropy values-with-units.  Alternately, this method may</span>
+<span class="sd">        be used to clear the wavelength information, by passing in ``None`` as</span>
+<span class="sd">        the argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">wavelengths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Spectrum has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">()</span><span class="si">}</span><span class="s2"> bands, but &quot;</span>
+                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span><span class="si">}</span><span class="s2"> wavelengths were specified&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Make a copy of the incoming list</span>
+            <span class="n">wavelengths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span> <span class="o">=</span> <span class="n">wavelengths</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_wavelength_units">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_wavelength_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wavelength_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_wavelengths</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_spectral_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">SpectralMetadata</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">source</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">(),</span> <span class="s2">&quot;SpectralMetadata has no wavelengths&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_wavelengths</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">())</span>
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_spectrum">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_spectrum">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the spectrum data as a 1D NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arr</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_editable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editable</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_discardable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discardable</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;NumPyArraySpectrum&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelength_units</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_wavelength_units</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># ===============================================================================</span>
+<span class="c1"># RASTER DATA-SET SPECTRA</span>
+<span class="c1"># ===============================================================================</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RasterDataSetSpectrum</span><span class="p">(</span><span class="n">Spectrum</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span> <span class="o">=</span> <span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_generated_name</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># This field holds the spectrum data.  It is generated lazily, so it</span>
+        <span class="c1"># won&#39;t be set until it is requested.  Additionally, it may be set back</span>
+        <span class="c1"># to None if the details of how the spectrum is generated are changed.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;RasterDataSetSpectrum[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_source_name</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reset_internal_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This internal helper function should be called when important details</span>
+<span class="sd">        of this object change, possibly necessitating the recalculation of the</span>
+<span class="sd">        spectrum data and/or a generated name for the spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_generated_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_generated_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_name</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_use_generated_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_generated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_generated_name</span> <span class="o">=</span> <span class="n">use_generated</span>
+        <span class="k">if</span> <span class="n">use_generated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_generated_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_generated_name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This helper function generates a name for this spectrum from its</span>
+<span class="sd">        configuration details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_source_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_filepaths</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">filenames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ds_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds_name</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+
+        <span class="k">return</span> <span class="n">ds_name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_avg_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_avg_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">avg_mode</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">avg_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SpectrumAverageMode</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;avg_mode must be a value from SpectrumAverageMode&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span> <span class="o">=</span> <span class="n">avg_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_internal_state</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of spectral bands in the raster data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">num_bands</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_elem_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the element-type of the spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if this spectrum has wavelength units for all bands, False</span>
+<span class="sd">        otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">has_wavelengths</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_bad_bands</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of wavelength values corresponding to each band.  The</span>
+<span class="sd">        individual values are astropy values-with-units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">b0</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">band_list</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;wavelength&quot;</span> <span class="ow">in</span> <span class="n">b0</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;wavelength&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;index&quot;</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">band_list</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">filter_bad_bands</span><span class="p">:</span>
+            <span class="n">bad_bands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_bad_bands</span><span class="p">()</span>
+            <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">bands</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">))</span> <span class="k">if</span> <span class="n">bad_bands</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">bands</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wavelength_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the wavelength units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This internal helper method computes and stores the spectrum data for</span>
+<span class="sd">        this object, based on its current configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must be implemented in subclass&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the spectrum data as a 1D NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_spectrum</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Spectrum&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_elem_type</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wavelength_units</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_wavelength_units</span><span class="p">()</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SpectrumAtPoint</span><span class="p">(</span><span class="n">RasterDataSetSpectrum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class represents the spectrum at or around a point in a raster data</span>
+<span class="sd">    set.  A rectangular area may be specified, and an average spectrum will be</span>
+<span class="sd">    computed over that area.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span>
+        <span class="n">point</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">area</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">avg_mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_area</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_area</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_avg_mode</span><span class="p">(</span><span class="n">avg_mode</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This helper function generates a name for this spectrum from its</span>
+<span class="sd">        configuration details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_area</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Spectrum at (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">AVG_MODE_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span><span class="p">]</span><span class="si">}</span><span class="s2"> of &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;area around (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This internal helper method computes and stores the spectrum data for</span>
+<span class="sd">        this object, based on its current configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_area</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_all_bands_at</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_area</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">rect</span> <span class="o">=</span> <span class="n">QRect</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="n">calc_rect_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_area</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;area values must be odd; got </span><span class="si">{</span><span class="n">area</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_area</span> <span class="o">!=</span> <span class="n">area</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_area</span> <span class="o">=</span> <span class="n">area</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_internal_state</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ROIAverageSpectrum</span><span class="p">(</span><span class="n">RasterDataSetSpectrum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class represents the average spectrum of a Region of Interest in a</span>
+<span class="sd">    raster data set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span><span class="p">,</span>
+        <span class="n">roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span><span class="p">,</span>
+        <span class="n">avg_mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roi</span><span class="p">:</span> <span class="n">RegionOfInterest</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_avg_mode</span><span class="p">(</span><span class="n">avg_mode</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_roi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegionOfInterest</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roi</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This helper function generates a name for this spectrum from its</span>
+<span class="sd">        configuration details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">AVG_MODE_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span><span class="p">]</span><span class="si">}</span><span class="s2"> of &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s1">&quot; Region of Interest&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This internal helper method computes and stores the spectrum data for</span>
+<span class="sd">        this object, based on its current configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spectrum</span> <span class="o">=</span> <span class="n">calc_roi_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avg_mode</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

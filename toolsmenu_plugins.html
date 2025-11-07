@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tool Menu Plugins &#8212; Extending WISER  documentation</title>
+    <title>Tools-Menu Plugins &#8212; Extending WISER  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
@@ -14,8 +14,8 @@
     <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/toolsmenu_plugins.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Context-Menu Plugins" href="ctxmenu_plugins.html" />
-    <link rel="prev" title="WISER Plugins Overview" href="plugins.html" />
+    <link rel="next" title="GUI Plugins in WISER" href="ui_plugins.html" />
+    <link rel="prev" title="Context-Menu Plugins" href="ctxmenu_plugins.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,34 +33,19 @@
 
           <div class="body" role="main">
             
-  <section id="tool-menu-plugins">
-<h1>Tool Menu Plugins<a class="headerlink" href="#tool-menu-plugins" title="Link to this heading">¶</a></h1>
-<p>Tool Menu plugins integrate into the toolbar in WISER. Specifically, all plugins
-made in this way will be under the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> tab. Tool menu plugins have access
-to <a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState" title="wiser.gui.app_state.ApplicationState"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.app_state.ApplicationState</span></code></a> which gives a large amount of control over operations
-on datasets, spectra, and regions of interest (ROIs). The plugin you create must
-subclass the <a class="reference internal" href="#wiser.plugins.ToolsMenuPlugin" title="wiser.plugins.ToolsMenuPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.plugins.ToolsMenuPlugin</span></code></a> type and fill in the various
-operations that WISER would call. Specifically, fill in the <code class="docutils literal notranslate"><span class="pre">add_tool_menu_items</span></code>
-function.</p>
-<p>Similar to context-menu Plugins, implementing a tool menu plugin requires
-some familiarity with Qt 5, since the plugin must, at a minimum, add <code class="docutils literal notranslate"><span class="pre">QMenu</span></code>
-actions for specific operations that are exposed.  If a plugin intends to expose
-its own GUI for configuration or other user interactions, please see
-<a class="reference internal" href="ui_plugins.html#gui-plugins-in-wiser"><span class="std std-ref">GUI Plugins in WISER</span></a> for more details on how this may be done.
-You will also need to understand everything in this section so that you can
-interface effectively with WISER’s internals.</p>
-<section id="the-toolsmenuplugin-class">
-<h2>The <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> Class<a class="headerlink" href="#the-toolsmenuplugin-class" title="Link to this heading">¶</a></h2>
-<p>Tools menu plugins must derive the <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> class. The documentation
-for this class spells out the essential details for interfacing with WISER.</p>
+  <section id="tools-menu-plugins">
+<h1>Tools-Menu Plugins<a class="headerlink" href="#tools-menu-plugins" title="Link to this heading">¶</a></h1>
+<p>Tool-menu plugins let you add an action to the Tool Menu (which is located in the top navigation bar). The tool menu plugin
+will show up with the name you give it and when you click on it, the function you connect to the action trigger will be clicked on.</p>
+<p>You may want to consider putting some of your actions in a sub menu if they are used less frequently.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.plugins.ToolsMenuPlugin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ToolsMenuPlugin</span></span><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ToolsMenuPlugin</span></span><a class="reference internal" href="_modules/wiser/plugins/types.html#ToolsMenuPlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin" title="Link to this definition">¶</a></dt>
 <dd><p>This is the base type for plugins that integrate into the WISER “Tools”
 application-menu.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.plugins.ToolsMenuPlugin.add_tool_menu_items">
-<span class="sig-name descname"><span class="pre">add_tool_menu_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_menu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QMenu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wiser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState" title="wiser.gui.app_state.ApplicationState"><span class="pre">ApplicationState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin.add_tool_menu_items" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_tool_menu_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_menu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QMenu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wiser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState" title="wiser.gui.app_state.ApplicationState"><span class="pre">ApplicationState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/plugins/types.html#ToolsMenuPlugin.add_tool_menu_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin.add_tool_menu_items" title="Link to this definition">¶</a></dt>
 <dd><p>This method is called by WISER to allow plugins to add menu actions or
 submenus into the Tools application menu.</p>
 <p>If a plugin provides multiple actions, the developer has several
@@ -75,6 +60,41 @@ add sub-menus to the Tools menu.</p>
 
 </dd></dl>
 
+<section id="example-tools-menu-plugin">
+<h2>Example Tools-Menu Plugin<a class="headerlink" href="#example-tools-menu-plugin" title="Link to this heading">¶</a></h2>
+<p>Okay, lets get into an example plugin.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolsMenuPlugin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMessageBox</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">HelloToolPlugin</span><span class="p">(</span><span class="n">ToolsMenuPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple &quot;Hello world!&quot; example of a Tools plugin.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tool_menu_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">wiser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to</span>
+<span class="sd">        add sub-menus to the Tools menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;HelloToolPlugin is adding tool-menu items&quot;</span><span class="p">)</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="n">tool_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Say hello...&quot;</span><span class="p">)</span>
+        <span class="n">act</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">say_hello</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;HelloToolPlugin.say_hello() was called!&quot;</span><span class="p">)</span>
+        <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Hello-Tool Plugin&quot;</span><span class="p">,</span> <span class="s2">&quot;Hello from the toolbar!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -98,13 +118,15 @@ add sub-menus to the Tools menu.</p>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tool Menu Plugins</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#the-toolsmenuplugin-class">The <code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code> Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tools-Menu Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#wiser.plugins.ToolsMenuPlugin"><code class="docutils literal notranslate"><span class="pre">ToolsMenuPlugin</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-tools-menu-plugin">Example Tools-Menu Plugin</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
 </ul>
@@ -113,8 +135,8 @@ add sub-menus to the Tools menu.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="plugins.html" title="previous chapter">WISER Plugins Overview</a></li>
-      <li>Next: <a href="ctxmenu_plugins.html" title="next chapter">Context-Menu Plugins</a></li>
+      <li>Previous: <a href="ctxmenu_plugins.html" title="previous chapter">Context-Menu Plugins</a></li>
+      <li>Next: <a href="ui_plugins.html" title="next chapter">GUI Plugins in WISER</a></li>
   </ul></li>
 </ul>
 </div>
