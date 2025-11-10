@@ -37,7 +37,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMessageBox</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QDialog</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.app_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplicationConfig</span><span class="p">,</span> <span class="n">PixelReticleType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_random_matplotlib_color</span>
@@ -60,6 +60,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.data_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataCache</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.subprocessing_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiprocessingManager</span><span class="p">,</span> <span class="n">ProcessManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.ui_library</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DatasetChooserDialog</span><span class="p">,</span>
+    <span class="n">SpectrumChooserDialog</span><span class="p">,</span>
+    <span class="n">ROIChooserDialog</span><span class="p">,</span>
+    <span class="n">BandChooserDialog</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.reference_creator_dialog</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrsCreatorState</span>
@@ -187,6 +193,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_pool_manager</span> <span class="o">=</span> <span class="n">MultiprocessingManager</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ProcessManager</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Plugin Chooser Dialogs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_dataset_chooser_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetChooserDialog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_spectrum_chooser_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpectrumChooserDialog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_roi_chooser_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ROIChooserDialog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_band_chooser_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BandChooserDialog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_running_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_manager</span><span class="p">:</span> <span class="n">ProcessManager</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="p">[</span><span class="n">process_manager</span><span class="o">.</span><span class="n">get_process_manager_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">process_manager</span>
@@ -781,7 +796,7 @@
 <a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.get_all_spectra">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_all_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieves all spectra in thet spectrum plot.</span>
+<span class="sd">        Retrieves all spectra in the spectrum plot.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_spectra</span></div>
 
@@ -924,7 +939,54 @@
             <span class="k">if</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">crs_creator_state</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">crs_creator_state</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_user_created_crs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">crs_creator_state</span><span class="p">)</span>
+
+    <span class="c1"># region UI Library Access</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">choose_dataset_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_test_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RasterDataSet</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_dataset_chooser_dialog</span> <span class="o">=</span> <span class="n">DatasetChooserDialog</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">in_test_mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_dataset_chooser_dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_dataset_chooser_dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_dataset_chooser_dialog</span><span class="o">.</span><span class="n">get_chosen_object</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">choose_spectrum_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_test_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spectrum</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_spectrum_chooser_dialog</span> <span class="o">=</span> <span class="n">SpectrumChooserDialog</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">in_test_mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_spectrum_chooser_dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_spectrum_chooser_dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_spectrum_chooser_dialog</span><span class="o">.</span><span class="n">get_chosen_object</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">choose_roi_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_test_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionOfInterest</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_roi_chooser_dialog</span> <span class="o">=</span> <span class="n">ROIChooserDialog</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">in_test_mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_roi_chooser_dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_roi_chooser_dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_roi_chooser_dialog</span><span class="o">.</span><span class="n">get_chosen_object</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">choose_band_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_test_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RasterDataBand</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_band_chooser_dialog</span> <span class="o">=</span> <span class="n">BandChooserDialog</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">in_test_mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_band_chooser_dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_band_chooser_dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_band_chooser_dialog</span><span class="o">.</span><span class="n">get_chosen_object</span><span class="p">()</span></div>
 
 </pre></div>
 
@@ -951,6 +1013,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../ui_plugins.html">GUI Plugins in WISER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin_utilities.html">Plugin Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>

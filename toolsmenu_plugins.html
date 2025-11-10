@@ -35,9 +35,11 @@
             
   <section id="tools-menu-plugins">
 <h1>Tools-Menu Plugins<a class="headerlink" href="#tools-menu-plugins" title="Link to this heading">¶</a></h1>
-<p>Tool-menu plugins let you add an action to the Tool Menu (which is located in the top navigation bar). The tool menu plugin
-will show up with the name you give it and when you click on it, the function you connect to the action trigger will be clicked on.</p>
-<p>You may want to consider putting some of your actions in a sub menu if they are used less frequently.</p>
+<p>Tools-menu plugins allow you to add custom actions to the Tool Menu located in the top navigation bar.
+Each plugin appears using the name you provide, and selecting it triggers the function you have linked
+to that action.</p>
+<p>If you have actions that are used less frequently, consider organizing them into a submenu to keep the
+main Tool Menu concise and easy to navigate.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wiser.plugins.ToolsMenuPlugin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.plugins.</span></span><span class="sig-name descname"><span class="pre">ToolsMenuPlugin</span></span><a class="reference internal" href="_modules/wiser/plugins/types.html#ToolsMenuPlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.plugins.ToolsMenuPlugin" title="Link to this definition">¶</a></dt>
@@ -90,9 +92,56 @@ add sub-menus to the Tools menu.</p>
         <span class="n">act</span> <span class="o">=</span> <span class="n">tool_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Say hello...&quot;</span><span class="p">)</span>
         <span class="n">act</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">say_hello</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span> <span class="o">=</span> <span class="n">wiser</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;HelloToolPlugin.say_hello() was called!&quot;</span><span class="p">)</span>
-        <span class="n">QMessageBox</span><span class="o">.</span><span class="n">information</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Hello-Tool Plugin&quot;</span><span class="p">,</span> <span class="s2">&quot;Hello from the toolbar!&quot;</span><span class="p">)</span>
+        <span class="c1"># logger.info(&quot;HelloToolPlugin.say_hello() was called!&quot;)</span>
+        <span class="c1"># QMessageBox.information(None, &quot;Hello-Tool Plugin&quot;, &quot;Hello from the toolbar!&quot;)</span>
+
+        <span class="n">app_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span>
+
+        <span class="n">band</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_band_ui</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">band</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">band</span><span class="o">.</span><span class="n">get_band_index</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_dataset_ui</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dataset</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># spectrum = app_state.choose_spectrum_ui()</span>
+        <span class="c1"># if spectrum:</span>
+        <span class="c1">#     print(f&quot;name: {spectrum.get_name()}&quot;)</span>
+
+        <span class="c1"># roi = app_state.choose_roi_ui()</span>
+        <span class="c1"># if roi:</span>
+        <span class="c1">#     print(f&quot;name: {roi.get_name()}&quot;)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpectrumAverageMode</span><span class="p">,</span> <span class="n">calc_roi_spectrum</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleToolPlugin</span><span class="p">(</span><span class="n">ToolsMenuPlugin</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tool_menu_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">wiser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to</span>
+<span class="sd">        add sub-menus to the Tools menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="n">tool_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;ROI Angle Mapper&quot;</span><span class="p">)</span>
+        <span class="n">act</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi_angle_mapper</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span> <span class="o">=</span> <span class="n">wiser</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">roi_angle_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">choose_dataset_ui</span><span class="p">()</span>
+        <span class="n">roi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">choose_roi_ui</span><span class="p">()</span>
+
+        <span class="n">mean_roi_spec</span> <span class="o">=</span> <span class="n">calc_roi_spectrum</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">roi</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">SpectrumAverageMode</span><span class="o">.</span><span class="n">MEAN</span><span class="p">)</span>
+
+        <span class="n">image_arr</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_image_data</span><span class="p">()</span>
+
+        <span class="c1"># Do some math</span>
+        
 </pre></div>
 </div>
 </section>
@@ -126,6 +175,7 @@ add sub-menus to the Tools menu.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_utilities.html">Plugin Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>

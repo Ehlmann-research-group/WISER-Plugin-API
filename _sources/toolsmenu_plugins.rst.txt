@@ -1,19 +1,20 @@
 Tools-Menu Plugins
 ==================
 
-Tool-menu plugins let you add an action to the Tool Menu (which is located in the top navigation bar). The tool menu plugin
-will show up with the name you give it and when you click on it, the function you connect to the action trigger will be clicked on.
+Tools-menu plugins allow you to add custom actions to the Tool Menu located in the top navigation bar.
+Each plugin appears using the name you provide, and selecting it triggers the function you have linked
+to that action.
 
-You may want to consider putting some of your actions in a sub menu if they are used less frequently.
+If you have actions that are used less frequently, consider organizing them into a submenu to keep the
+main Tool Menu concise and easy to navigate.
 
 .. autoclass:: wiser.plugins.ToolsMenuPlugin
     :members:
 
 Example Tools-Menu Plugin
---------------
+-------------------------
 
 Okay, lets get into an example plugin.
 
 .. literalinclude:: ../../src/example_plugins/tool_plugin.py
    :language: python
-   
