@@ -35,7 +35,7 @@
             
   <section id="plugin-utilities">
 <h1>Plugin Utilities<a class="headerlink" href="#plugin-utilities" title="Link to this heading">¶</a></h1>
-<p>WISER exposes 4 ways to create your own UI items for your plugins. These ways let you
+<p>WISER exposes 4 ways to create your own UI items that get wiser state for your plugins. These ways let you
 prompt the user to choose datasets, spectra, ROIs, and bands. You access them
 through <a class="reference internal" href="wiser_state.html#wiser.gui.app_state.ApplicationState" title="wiser.gui.app_state.ApplicationState"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.app_state.ApplicationState</span></code></a>. The methods are:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_dataset_ui</span><span class="p">()</span>
@@ -44,6 +44,24 @@ through <a class="reference internal" href="wiser_state.html#wiser.gui.app_state
 <span class="n">band</span><span class="p">:</span> <span class="n">RasterDataBand</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_band_ui</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>The <a class="reference internal" href="supporting_types.html#wiser.gui.ui_library.DynamicInputDialog" title="wiser.gui.ui_library.DynamicInputDialog"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.ui_library.DynamicInputDialog</span></code></a> provides a simple way to collect user input that isn’t tied to WISER’s internal state.
+By passing in a list of input specifications, you can dynamically generate a dialog that displays text fields and
+combo boxes. This is useful for plugins or tools that need to ask users for parameters,
+options, or configuration values before running. Here is an example of its use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">form_inputs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Enter Wavelength&quot;</span><span class="p">,</span> <span class="s2">&quot;wvl&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Enter Divisor&quot;</span><span class="p">,</span> <span class="s2">&quot;divisor&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Enter Dimensionality Reduction&quot;</span><span class="p">,</span> <span class="s2">&quot;dim_reduction&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;PCA&quot;</span><span class="p">,</span> <span class="s2">&quot;SVD&quot;</span><span class="p">]),</span>
+    <span class="p">]</span>
+<span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">create_form</span><span class="p">(</span>
+    <span class="n">form_inputs</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Analysis Params&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;In the above text enter the parameters needed to perform the algorithm.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This will construct a GUI element that looks like this:</p>
+<img alt="_images/dynamic_plugin_input.png" src="_images/dynamic_plugin_input.png" />
 <p>Below is an example that asks the user to first select a dataset and then a region
 of interest in a tools menu plugin:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpectrumAverageMode</span><span class="p">,</span> <span class="n">calc_roi_spectrum</span>

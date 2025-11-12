@@ -67,6 +67,8 @@ add sub-menus to the Tools menu.</p>
 <p>Okay, lets get into an example plugin.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolsMenuPlugin</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMessageBox</span>
@@ -100,21 +102,35 @@ add sub-menus to the Tools menu.</p>
 
         <span class="n">app_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span>
 
-        <span class="n">band</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_band_ui</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Description: Choose the band that you want </span><span class="se">\n</span><span class="s2"> to be calculated on.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">band</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">band</span><span class="o">.</span><span class="n">get_band_index</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">form_inputs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;Enter Wavelength&quot;</span><span class="p">,</span> <span class="s2">&quot;wvl&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Enter Divisor&quot;</span><span class="p">,</span> <span class="s2">&quot;divisor&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Enter Dimensionality Reduction&quot;</span><span class="p">,</span> <span class="s2">&quot;dim_reduction&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;PCA&quot;</span><span class="p">,</span> <span class="s2">&quot;SVD&quot;</span><span class="p">]),</span>
+        <span class="p">]</span>
+        <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">create_form</span><span class="p">(</span>
+            <span class="n">form_inputs</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Analysis Params&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;In the above text enter the parameters needed to perform the algorithm.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_dataset_ui</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose Dataset&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dataset</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">return_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;key: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">  | value: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_spectrum_ui</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose Spectrum&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">spectrum</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">spectrum</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># band = app_state.choose_band_ui(description=&quot;Description: Choose the band that you want \n to be calculated on.&quot;)</span>
+        <span class="c1"># if band:</span>
+        <span class="c1">#     print(f&quot;name: {band.get_band_index()}&quot;)</span>
 
-        <span class="n">roi</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_roi_ui</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose ROI&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">roi</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="n">roi</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># dataset = app_state.choose_dataset_ui(description=&quot;Choose Dataset&quot;)</span>
+        <span class="c1"># if dataset:</span>
+        <span class="c1">#     print(f&quot;name: {dataset.get_name()}&quot;)</span>
+
+        <span class="c1"># spectrum = app_state.choose_spectrum_ui(description=&quot;Choose Spectrum&quot;)</span>
+        <span class="c1"># if spectrum:</span>
+        <span class="c1">#     print(f&quot;name: {spectrum.get_name()}&quot;)</span>
+
+        <span class="c1"># roi = app_state.choose_roi_ui(description=&quot;Choose ROI&quot;)</span>
+        <span class="c1"># if roi:</span>
+        <span class="c1">#     print(f&quot;name: {roi.get_name()}&quot;)</span>
 
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpectrumAverageMode</span><span class="p">,</span> <span class="n">calc_roi_spectrum</span>

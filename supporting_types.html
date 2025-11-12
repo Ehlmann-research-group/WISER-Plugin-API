@@ -768,6 +768,62 @@ once, even if the pixel appears within multiple selections in the ROI.</p>
 </dd></dl>
 
 </section>
+<section id="dynamicinputdialog">
+<h2>DynamicInputDialog<a class="headerlink" href="#dynamicinputdialog" title="Link to this heading">¶</a></h2>
+<p>A utility for plugin developers to use to easily collect user input through a GUI.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputDialog">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.gui.ui_library.</span></span><span class="sig-name descname"><span class="pre">DynamicInputDialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dialog_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#DynamicInputDialog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputDialog" title="Link to this definition">¶</a></dt>
+<dd><p>This class lets plugin creators make a dialog with inputs that they can set!</p>
+<p>You make use of this class by using the function create_input_dialog</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputDialog.create_input_dialog">
+<span class="sig-name descname"><span class="pre">create_input_dialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DynamicInputType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#DynamicInputDialog.create_input_dialog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputDialog.create_input_dialog" title="Link to this definition">¶</a></dt>
+<dd><p>Create and execute a dynamic input dialog.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>inputs:</dt><dd><p>A list of tuples defining the requested inputs:
+[</p>
+<blockquote>
+<div><p>(“&lt;display name&gt;”, “&lt;return_key&gt;”, DynamicInputType, [&lt;combo_items&gt; or None]),
+…</p>
+</div></blockquote>
+<p>]</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>For DynamicInputType.COMBO_BOX:</dt><dd><p>Provide a 4th element: a list of items for the combo box.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For DynamicInputType.FLOAT_NO_UNITS:</dt><dd><p>4th element is ignored (can be None).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For DynamicInputType.FLOAT_UNITS:</dt><dd><p>4th element is ignored (can be None). A unit selector combo is created
+using populate_combo_box_with_units.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>Optional[Dict]:</dt><dd><ul class="simple">
+<li><p>On Accepted: { “&lt;return_key&gt;”: value, … }</p></li>
+<li><p>On Rejected: None</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -802,6 +858,7 @@ once, even if the pixel appears within multiple selections in the ROI.</p>
 <li class="toctree-l2"><a class="reference internal" href="#raster-data-bands">Raster Data Bands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#spectra">Spectra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#region-of-interest">Region Of Interest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamicinputdialog">DynamicInputDialog</a></li>
 </ul>
 </li>
 </ul>
