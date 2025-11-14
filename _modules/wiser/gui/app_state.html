@@ -36,6 +36,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtCore</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QDialog</span>
 
@@ -66,16 +69,14 @@
     <span class="n">ROIChooserDialog</span><span class="p">,</span>
     <span class="n">BandChooserDialog</span><span class="p">,</span>
     <span class="n">DynamicInputDialog</span><span class="p">,</span>
+    <span class="n">TableDisplayWidget</span><span class="p">,</span>
+    <span class="n">MatplotlibDisplayWidget</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.spectrum_plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpectrumPlotGeneric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateChange</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.reference_creator_dialog</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrsCreatorState</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">StateChange</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">ITEM_ADDED</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">ITEM_EDITED</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">ITEM_REMOVED</span> <span class="o">=</span> <span class="mi">3</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">make_unique_name</span><span class="p">(</span><span class="n">candidate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">used_names</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -205,6 +206,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_plugin_band_chooser_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BandChooserDialog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_dynamic_input_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DynamicInputDialog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># The set of generic spectrum plots that users can make for their plugins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generic_spectrum_plots</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">SpectrumPlotGeneric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># The set of table display widgets that users can make for their plugins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_table_display_widgets</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">TableDisplayWidget</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># The set of matplotlib display widgets that users can make for their plugins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matplotlib_display_widgets</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">MatplotlibDisplayWidget</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_running_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_manager</span><span class="p">:</span> <span class="n">ProcessManager</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_running_processes</span><span class="p">[</span><span class="n">process_manager</span><span class="o">.</span><span class="n">get_process_manager_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">process_manager</span>
@@ -1027,7 +1037,108 @@
         <span class="k">if</span> <span class="n">in_test_mode</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dynamic_input_dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamic_input_dialog</span><span class="o">.</span><span class="n">create_input_dialog</span><span class="p">(</span><span class="n">form_inputs</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamic_input_dialog</span><span class="o">.</span><span class="n">create_input_dialog</span><span class="p">(</span><span class="n">form_inputs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ApplicationState.show_spectra_in_plot">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.show_spectra_in_plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_spectra_in_plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">spectra</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Spectrum</span><span class="p">],</span>
+        <span class="n">plot_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes the list of spectra passed in and displays it in a generic</span>
+<span class="sd">        spectrum plot.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">generic_spectrum_plot</span> <span class="o">=</span> <span class="n">SpectrumPlotGeneric</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot_title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">generic_spectrum_plot</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">plot_title</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">spectrum</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">spectrum</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">take_next_id</span><span class="p">())</span>
+            <span class="n">generic_spectrum_plot</span><span class="o">.</span><span class="n">add_collected_spectrum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generic_spectrum_plots</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">generic_spectrum_plot</span><span class="p">)</span>
+
+        <span class="c1"># We keep a reference to generic_spectrum_plot so it doesn&#39;t get garbage collected</span>
+        <span class="n">generic_spectrum_plot</span><span class="o">.</span><span class="n">closed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_generic_spectrum_plot_closed</span><span class="p">(</span><span class="n">generic_spectrum_plot</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">generic_spectrum_plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_generic_spectrum_plot_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum_plot</span><span class="p">:</span> <span class="n">SpectrumPlotGeneric</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generic_spectrum_plots</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">spectrum_plot</span><span class="p">)</span>
+        <span class="n">spectrum_plot</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ApplicationState.show_table_widget">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.show_table_widget">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_table_widget</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="n">window_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and shows a table widget that is meant for display.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="s2">&quot;Error!&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="s2">&quot;Number of columns must match number of items in header!&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="c1"># Do not pass self._app as the parent of TableDisplayWidget</span>
+        <span class="n">table_display_widget</span><span class="p">:</span> <span class="n">TableDisplayWidget</span> <span class="o">=</span> <span class="n">TableDisplayWidget</span><span class="p">()</span>
+        <span class="n">table_display_widget</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+            <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+            <span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">window_title</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># We keep a reference to table_display_widget so it doesn&#39;t get garbage collected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_table_display_widgets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">table_display_widget</span><span class="p">)</span>
+        <span class="n">table_display_widget</span><span class="o">.</span><span class="n">closed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_table_display_widget_closed</span><span class="p">(</span><span class="n">table_display_widget</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">table_display_widget</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_table_display_widget_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_display_widget</span><span class="p">:</span> <span class="n">TableDisplayWidget</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_table_display_widgets</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">table_display_widget</span><span class="p">)</span>
+        <span class="n">table_display_widget</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ApplicationState.show_matplotlib_display_widget">
+<a class="viewcode-back" href="../../../wiser_state.html#wiser.gui.app_state.ApplicationState.show_matplotlib_display_widget">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_matplotlib_display_widget</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">figure</span><span class="p">:</span> <span class="n">Figure</span><span class="p">,</span>
+        <span class="n">axes</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
+        <span class="n">window_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and shows a widget with a matplotlib plot&quot;&quot;&quot;</span>
+        <span class="n">matplotlib_display</span> <span class="o">=</span> <span class="n">MatplotlibDisplayWidget</span><span class="p">()</span>
+        <span class="n">matplotlib_display</span><span class="o">.</span><span class="n">create_plot</span><span class="p">(</span>
+            <span class="n">figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span>
+            <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span>
+            <span class="n">window_title</span><span class="o">=</span><span class="n">window_title</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matplotlib_display_widgets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">matplotlib_display</span><span class="p">)</span>
+
+        <span class="n">matplotlib_display</span><span class="o">.</span><span class="n">closed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_matplotlib_display_widget_closed</span><span class="p">(</span><span class="n">matplotlib_display</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">matplotlib_display</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_matplotlib_display_widget_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matplotlib_display</span><span class="p">:</span> <span class="n">MatplotlibDisplayWidget</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matplotlib_display_widgets</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">matplotlib_display</span><span class="p">)</span>
+        <span class="n">matplotlib_display</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span></div>
 
 </pre></div>
 

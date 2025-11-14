@@ -170,6 +170,40 @@ the data-set’s internal state.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataSet.set_band_list">
+<span class="sig-name descname"><span class="pre">set_band_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.set_band_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.set_band_list" title="Link to this definition">¶</a></dt>
+<dd><p>This should ONLY be used for datasets that have NumPyRasterDataImpl as
+their impl type. This can be VERY destructive to metadata for other
+impl dataset types. Use with caution!</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>band_list (List[Dict[str, Any]]):</dt><dd><p>band_list should contain at least one of these keys:
+*   ‘index’ - the integer index of the band (always present)
+*   ‘description’ - the string description of the band
+*   ‘wavelength’ - a value-with-units for the spectral wavelength of</p>
+<blockquote>
+<div><p>the band.  astropy.units is used to represent the values-with-units.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>‘wavelength_str’ - the string version of the band’s wavelength</p></li>
+<li><p>‘wavelength_units’ - the string version of the band’s
+wavelength-units value</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataSet.set_band_unit">
+<span class="sig-name descname"><span class="pre">set_band_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.set_band_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.set_band_unit" title="Link to this definition">¶</a></dt>
+<dd><p>This should ONLY be used for datasets that have NumPyRasterDataImpl as
+their impl type. This can be destructive to metadata for other
+impl dataset types. Use with caution!</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.has_wavelengths">
 <span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.has_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.has_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if all bands specify a wavelength (or some other unit
@@ -824,6 +858,66 @@ using populate_combo_box_with_units.</p>
 </dd></dl>
 
 </section>
+<section id="tabledisplaywidget">
+<h2>TableDisplayWidget<a class="headerlink" href="#tabledisplaywidget" title="Link to this heading">¶</a></h2>
+<p>A utility for plugin developers to easily display information in a table.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.TableDisplayWidget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.gui.ui_library.</span></span><span class="sig-name descname"><span class="pre">TableDisplayWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#TableDisplayWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.TableDisplayWidget" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.TableDisplayWidget.create_table">
+<span class="sig-name descname"><span class="pre">create_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#TableDisplayWidget.create_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.TableDisplayWidget.create_table" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a GUI item that has a description at the top and a
+QTableWidget with the specified header and the given rows.
+The table widget is only for display, so no interaction
+can be done.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>header (List[str]):</dt><dd><p>A list of each of the column header names in order</p>
+</dd>
+<dt>rows (List[List[Any]]):</dt><dd><p>Each of the rows to put into the table in order. The
+elements in the outer list correspond to rows in the
+table. The elements in the inner list correspond to
+columns for that row.</p>
+</dd>
+<dt>description (str, optional):</dt><dd><p>Optional text placed above the table.</p>
+</dd>
+<dt>title (str, optional):</dt><dd><p>Optional title displayed above the description.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.TableDisplayWidget.closeEvent">
+<span class="sig-name descname"><span class="pre">closeEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide2.QtGui.QCloseEvent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#TableDisplayWidget.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.TableDisplayWidget.closeEvent" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="matplotlibdisplaywidget">
+<h2>MatplotlibDisplayWidget<a class="headerlink" href="#matplotlibdisplaywidget" title="Link to this heading">¶</a></h2>
+<p>A utility for plugin developers to easily display matplotlib plots.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.MatplotlibDisplayWidget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.gui.ui_library.</span></span><span class="sig-name descname"><span class="pre">MatplotlibDisplayWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#MatplotlibDisplayWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.MatplotlibDisplayWidget" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.MatplotlibDisplayWidget.create_plot">
+<span class="sig-name descname"><span class="pre">create_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Figure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#MatplotlibDisplayWidget.create_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.MatplotlibDisplayWidget.create_plot" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a QWidget that containts the figure and axes passed in. You
+can optionally set the window title and provide a description.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.MatplotlibDisplayWidget.closeEvent">
+<span class="sig-name descname"><span class="pre">closeEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PySide2.QtGui.QCloseEvent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#MatplotlibDisplayWidget.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.MatplotlibDisplayWidget.closeEvent" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -859,6 +953,8 @@ using populate_combo_box_with_units.</p>
 <li class="toctree-l2"><a class="reference internal" href="#spectra">Spectra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#region-of-interest">Region Of Interest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dynamicinputdialog">DynamicInputDialog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tabledisplaywidget">TableDisplayWidget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#matplotlibdisplaywidget">MatplotlibDisplayWidget</a></li>
 </ul>
 </li>
 </ul>

@@ -44,10 +44,13 @@ through <a class="reference internal" href="wiser_state.html#wiser.gui.app_state
 <span class="n">band</span><span class="p">:</span> <span class="n">RasterDataBand</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">choose_band_ui</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The <a class="reference internal" href="supporting_types.html#wiser.gui.ui_library.DynamicInputDialog" title="wiser.gui.ui_library.DynamicInputDialog"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.ui_library.DynamicInputDialog</span></code></a> provides a simple way to collect user input that isn’t tied to WISER’s internal state.
-By passing in a list of input specifications, you can dynamically generate a dialog that displays text fields and
-combo boxes. This is useful for plugins or tools that need to ask users for parameters,
-options, or configuration values before running. Here is an example of its use:</p>
+<p>The <a class="reference internal" href="supporting_types.html#wiser.gui.ui_library.DynamicInputDialog" title="wiser.gui.ui_library.DynamicInputDialog"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.ui_library.DynamicInputDialog</span></code></a> provides a simple way to
+collect user input that isn’t tied to WISER’s internal state. By passing in a
+list of input specifications, you can dynamically generate a dialog that displays
+text fields and combo boxes. This is useful for plugins or tools that need to
+ask users for parameters, options, or configuration values before running. You should
+not use this class directly and instead use the function <cite>ApplicationState.create_form</cite>.
+Here is an example of its use:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">form_inputs</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s2">&quot;Enter Wavelength&quot;</span><span class="p">,</span> <span class="s2">&quot;wvl&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;Enter Divisor&quot;</span><span class="p">,</span> <span class="s2">&quot;divisor&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -62,8 +65,77 @@ options, or configuration values before running. Here is an example of its use:<
 </div>
 <p>This will construct a GUI element that looks like this:</p>
 <img alt="_images/dynamic_plugin_input.png" src="_images/dynamic_plugin_input.png" />
-<p>Below is an example that asks the user to first select a dataset and then a region
-of interest in a tools menu plugin:</p>
+<p>The class <a class="reference internal" href="supporting_types.html#wiser.gui.ui_library.TableDisplayWidget" title="wiser.gui.ui_library.TableDisplayWidget"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.ui_library.TableDisplayWidget</span></code></a> provides a way
+to display the output of your code in the form of a table. You should
+not use this class directly and instead use the function <cite>ApplicationState.show_table_widget</cite>.
+An example of how to use it is below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">,</span> <span class="s2">&quot;Pizza&quot;</span><span class="p">,</span> <span class="s2">&quot;Salad&quot;</span><span class="p">]</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;LA&quot;</span><span class="p">,</span> <span class="s2">&quot;10000&quot;</span><span class="p">,</span> <span class="s2">&quot;12000&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;SF&quot;</span><span class="p">,</span> <span class="s2">&quot;3000&quot;</span><span class="p">,</span> <span class="s2">&quot;3600&quot;</span><span class="p">]]</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">show_table_widget</span><span class="p">(</span>
+    <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+    <span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+    <span class="n">window_title</span><span class="o">=</span><span class="s2">&quot;Pizza and Salad by City&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Shows the amount of</span><span class="se">\n</span><span class="s2">pizza and salad per city.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The class <a class="reference internal" href="supporting_types.html#wiser.gui.ui_library.MatplotlibDisplayWidget" title="wiser.gui.ui_library.MatplotlibDisplayWidget"><code class="xref py py-class docutils literal notranslate"><span class="pre">wiser.gui.ui_library.MatplotlibDisplayWidget</span></code></a> provides a way to
+display matplotlib plots in a GUI element in WISER. You should
+not use this class directly and instead use the function
+<cite>ApplicationState.show_table_widget</cite>. An example of how to use
+it through app_state is below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make some 2D data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+
+<span class="c1"># Create figure + axes</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># Draw heatmap</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add colorbar</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Intensity&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add labels</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Random Heatmap&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;X axis&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Y axis&quot;</span><span class="p">)</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">show_matplotlib_display_widget</span><span class="p">(</span>
+    <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span>
+    <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+    <span class="n">window_title</span><span class="o">=</span><span class="s2">&quot;Simple Matplotlib Plot&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Example to show the matplotlib functionality working&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use the function <cite>ApplicationState.show_spectra_in_plot</cite> to
+plot a list of spectra in a spectrum plot. Here is an example of its use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">test_spectrum_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="mf">0.25744912028312683</span><span class="p">,</span>
+        <span class="mf">0.2996889650821686</span><span class="p">,</span>
+        <span class="mf">0.07340309023857117</span><span class="p">,</span>
+        <span class="mf">0.09369881451129913</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">test_spectrum_x</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">472.019989</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nanometer</span><span class="p">,</span>
+    <span class="mf">532.130005</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nanometer</span><span class="p">,</span>
+    <span class="mf">702.419983</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nanometer</span><span class="p">,</span>
+    <span class="mf">852.679993</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nanometer</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">double</span> <span class="o">=</span> <span class="n">test_spectrum_y</span> <span class="o">+</span> <span class="n">test_spectrum_y</span>
+<span class="n">spec1</span> <span class="o">=</span> <span class="n">NumPyArraySpectrum</span><span class="p">(</span><span class="n">test_spectrum_y</span><span class="p">,</span> <span class="s2">&quot;Test_spectrum1&quot;</span><span class="p">,</span> <span class="n">wavelengths</span><span class="o">=</span><span class="n">test_spectrum_x</span><span class="p">)</span>
+<span class="n">spec2</span> <span class="o">=</span> <span class="n">NumPyArraySpectrum</span><span class="p">(</span><span class="n">double</span><span class="p">,</span> <span class="s2">&quot;Test_spectrum2&quot;</span><span class="p">,</span> <span class="n">wavelengths</span><span class="o">=</span><span class="n">test_spectrum_x</span><span class="p">)</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">show_spectra_in_plot</span><span class="p">([</span><span class="n">spec1</span><span class="p">,</span> <span class="n">spec2</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Lastly, below is a tools menu plugin example that asks the user to first
+select a dataset and then a region of interest in a tools menu plugin:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.spectrum</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpectrumAverageMode</span><span class="p">,</span> <span class="n">calc_roi_spectrum</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ExampleToolPlugin</span><span class="p">(</span><span class="n">ToolsMenuPlugin</span><span class="p">):</span>

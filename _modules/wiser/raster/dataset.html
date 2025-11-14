@@ -782,6 +782,40 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_band_info</span></div>
 
 
+<div class="viewcode-block" id="RasterDataSet.set_band_list">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RasterDataSet.set_band_list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_band_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This should ONLY be used for datasets that have NumPyRasterDataImpl as</span>
+<span class="sd">        their impl type. This can be VERY destructive to metadata for other</span>
+<span class="sd">        impl dataset types. Use with caution!</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            band_list (List[Dict[str, Any]]):</span>
+<span class="sd">                band_list should contain at least one of these keys:</span>
+<span class="sd">                *   &#39;index&#39; - the integer index of the band (always present)</span>
+<span class="sd">                *   &#39;description&#39; - the string description of the band</span>
+<span class="sd">                *   &#39;wavelength&#39; - a value-with-units for the spectral wavelength of</span>
+<span class="sd">                    the band.  astropy.units is used to represent the values-with-units.</span>
+<span class="sd">                *   &#39;wavelength_str&#39; - the string version of the band&#39;s wavelength</span>
+<span class="sd">                *   &#39;wavelength_units&#39; - the string version of the band&#39;s</span>
+<span class="sd">                    wavelength-units value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_band_info</span> <span class="o">=</span> <span class="n">band_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_wavelengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_has_wavelengths</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="RasterDataSet.set_band_unit">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RasterDataSet.set_band_unit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_band_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This should ONLY be used for datasets that have NumPyRasterDataImpl as</span>
+<span class="sd">        their impl type. This can be destructive to metadata for other</span>
+<span class="sd">        impl dataset types. Use with caution!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_band_unit</span> <span class="o">=</span> <span class="n">unit</span></div>
+
+
 <div class="viewcode-block" id="RasterDataSet.has_wavelengths">
 <a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RasterDataSet.has_wavelengths">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_wavelengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1787,6 +1821,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the backing data set.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_ignore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Number</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_data_ignore_value</span><span class="p">()</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">get_spatial_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpatialMetadata</span><span class="p">:</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
         <span class="n">spatial_metadata</span> <span class="o">=</span> <span class="n">SpatialMetadata</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">_geo_transform</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">_wkt_spatial_reference</span><span class="p">)</span>
@@ -1818,6 +1855,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_band_index</span> <span class="o">=</span> <span class="n">band_index</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_band_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">band_list</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">_band_index</span><span class="p">]</span>
 
 <div class="viewcode-block" id="RasterDataBand.get_band_index">
 <a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.RasterDataBand.get_band_index">[docs]</a>
