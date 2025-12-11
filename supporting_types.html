@@ -14,6 +14,7 @@
     <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/supporting_types.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="More Example Plugins" href="more_example_plugins.html" />
     <link rel="prev" title="Accessing and Modifying WISER State" href="wiser_state.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -196,6 +197,13 @@ wavelength-units value</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataSet.set_band_descriptions">
+<span class="sig-name descname"><span class="pre">set_band_descriptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_descriptions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.set_band_descriptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.set_band_descriptions" title="Link to this definition">¶</a></dt>
+<dd><p>This sets just the band description for all the bands in the dataset
+based on what is in band_descriptions list.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.RasterDataSet.set_band_unit">
 <span class="sig-name descname"><span class="pre">set_band_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.set_band_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.set_band_unit" title="Link to this definition">¶</a></dt>
 <dd><p>This should ONLY be used for datasets that have NumPyRasterDataImpl as
@@ -208,6 +216,12 @@ impl dataset types. Use with caution!</p>
 <span class="sig-name descname"><span class="pre">has_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.has_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.has_wavelengths" title="Link to this definition">¶</a></dt>
 <dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if all bands specify a wavelength (or some other unit
 that can be converted to wavelength); otherwise, returns <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.RasterDataSet.get_wavelengths">
+<span class="sig-name descname"><span class="pre">get_wavelengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/raster/dataset.html#RasterDataSet.get_wavelengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.RasterDataSet.get_wavelengths" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the wavelengths of the dataset if it has wavelengths.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -570,6 +584,13 @@ application.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.Spectrum.get_bad_bands">
+<span class="sig-name descname"><span class="pre">get_bad_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_bad_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_bad_bands" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a boolean numpy array indicating which bands are bad (1 for bands
+to keep, 0 for bands to removed).  If no bad bands are defined, returns None.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="wiser.raster.Spectrum.get_shape">
 <span class="sig-name descname"><span class="pre">get_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#Spectrum.get_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.Spectrum.get_shape" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the shape of the spectrum.  This is always simply
@@ -667,6 +688,19 @@ name has been specified.</p>
 <dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.num_bands">
 <span class="sig-name descname"><span class="pre">num_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.num_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.num_bands" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the number of spectral bands in the spectrum.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.set_bad_bands">
+<span class="sig-name descname"><span class="pre">set_bad_bands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bad_bands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.set_bad_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.set_bad_bands" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the bad bands array for this spectrum. 1 is keep, 0 is ignore.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wiser.raster.NumPyArraySpectrum.get_bad_bands">
+<span class="sig-name descname"><span class="pre">get_bad_bands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/raster/spectrum.html#NumPyArraySpectrum.get_bad_bands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.raster.NumPyArraySpectrum.get_bad_bands" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a boolean numpy array indicating which bands are bad (1 for bands
+to keep, 0 for bands to removed).  If no bad bands are defined, returns None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -812,7 +846,7 @@ once, even if the pixel appears within multiple selections in the ROI.</p>
 <p>You make use of this class by using the function create_input_dialog</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputDialog.create_input_dialog">
-<span class="sig-name descname"><span class="pre">create_input_dialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DynamicInputType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#DynamicInputDialog.create_input_dialog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputDialog.create_input_dialog" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">create_input_dialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#wiser.gui.ui_library.DynamicInputType" title="wiser.gui.ui_library.DynamicInputType"><span class="pre">DynamicInputType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#DynamicInputDialog.create_input_dialog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputDialog.create_input_dialog" title="Link to this definition">¶</a></dt>
 <dd><p>Create and execute a dynamic input dialog.</p>
 <dl>
 <dt>Args:</dt><dd><dl>
@@ -825,18 +859,8 @@ once, even if the pixel appears within multiple selections in the ROI.</p>
 <p>]</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>For DynamicInputType.COMBO_BOX:</dt><dd><p>Provide a 4th element: a list of items for the combo box.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For DynamicInputType.FLOAT_NO_UNITS:</dt><dd><p>4th element is ignored (can be None).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For DynamicInputType.FLOAT_UNITS:</dt><dd><p>4th element is ignored (can be None). A unit selector combo is created
-using populate_combo_box_with_units.</p>
+<dt>For DynamicInputType.COMBO_BOX:</dt><dd><p>Provide a 4th element: a list of items for the combo box.
+No other DynamicInputTypes need this.</p>
 </dd>
 </dl>
 </li>
@@ -854,6 +878,45 @@ using populate_combo_box_with_units.</p>
 </dd>
 </dl>
 </dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="dynamicinputtype">
+<h2>DynamicInputType<a class="headerlink" href="#dynamicinputtype" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wiser.gui.ui_library.</span></span><span class="sig-name descname"><span class="pre">DynamicInputType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wiser/gui/ui_library.html#DynamicInputType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType" title="Link to this definition">¶</a></dt>
+<dd><p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType.COMBO_BOX">
+<span class="sig-name descname"><span class="pre">COMBO_BOX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType.COMBO_BOX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType.FLOAT_NO_UNITS">
+<span class="sig-name descname"><span class="pre">FLOAT_NO_UNITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType.FLOAT_NO_UNITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType.FLOAT_UNITS">
+<span class="sig-name descname"><span class="pre">FLOAT_UNITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType.FLOAT_UNITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType.INT_NO_UNITS">
+<span class="sig-name descname"><span class="pre">INT_NO_UNITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType.INT_NO_UNITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType.INT_UNITS">
+<span class="sig-name descname"><span class="pre">INT_UNITS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType.INT_UNITS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wiser.gui.ui_library.DynamicInputType.STRING">
+<span class="sig-name descname"><span class="pre">STRING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#wiser.gui.ui_library.DynamicInputType.STRING" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -953,10 +1016,12 @@ can optionally set the window title and provide a description.</p>
 <li class="toctree-l2"><a class="reference internal" href="#spectra">Spectra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#region-of-interest">Region Of Interest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dynamicinputdialog">DynamicInputDialog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dynamicinputtype">DynamicInputType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tabledisplaywidget">TableDisplayWidget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#matplotlibdisplaywidget">MatplotlibDisplayWidget</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="more_example_plugins.html">More Example Plugins</a></li>
 </ul>
 
 <div class="relations">
@@ -964,6 +1029,7 @@ can optionally set the window title and provide a description.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="wiser_state.html" title="previous chapter">Accessing and Modifying WISER State</a></li>
+      <li>Next: <a href="more_example_plugins.html" title="next chapter">More Example Plugins</a></li>
   </ul></li>
 </ul>
 </div>

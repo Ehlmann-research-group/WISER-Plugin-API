@@ -102,7 +102,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_button_box</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_button_box</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -138,13 +137,16 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reject</span><span class="p">()</span>
 
 
+<div class="viewcode-block" id="DynamicInputType">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.gui.ui_library.DynamicInputType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DynamicInputType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">COMBO_BOX</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">FLOAT_NO_UNITS</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">FLOAT_UNITS</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">INT_NO_UNITS</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="n">INT_UNITS</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">STRING</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">STRING</span> <span class="o">=</span> <span class="mi">5</span></div>
+
 
 
 <div class="viewcode-block" id="DynamicInputDialog">
@@ -185,11 +187,7 @@
 
 <span class="sd">                - For DynamicInputType.COMBO_BOX:</span>
 <span class="sd">                    Provide a 4th element: a list of items for the combo box.</span>
-<span class="sd">                - For DynamicInputType.FLOAT_NO_UNITS:</span>
-<span class="sd">                    4th element is ignored (can be None).</span>
-<span class="sd">                - For DynamicInputType.FLOAT_UNITS:</span>
-<span class="sd">                    4th element is ignored (can be None). A unit selector combo is created</span>
-<span class="sd">                    using populate_combo_box_with_units.</span>
+<span class="sd">                    No other DynamicInputTypes need this.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Optional[Dict]:</span>
@@ -386,8 +384,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">spectrum_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cbox</span><span class="o">.</span><span class="n">currentData</span><span class="p">()</span>
-        <span class="n">spectrum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">(</span><span class="n">spectrum_id</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">spectrum</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spectrum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">(</span><span class="n">spectrum_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">spectrum</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ROIChooserDialog</span><span class="p">(</span><span class="n">SingleItemChooserDialog</span><span class="p">):</span>
@@ -735,6 +736,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../more_example_plugins.html">More Example Plugins</a></li>
 </ul>
 
 <div class="relations">

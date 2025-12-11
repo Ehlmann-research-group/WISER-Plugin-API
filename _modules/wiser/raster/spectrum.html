@@ -373,6 +373,16 @@
         <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="Spectrum.get_bad_bands">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_bad_bands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bad_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a boolean numpy array indicating which bands are bad (1 for bands</span>
+<span class="sd">        to keep, 0 for bands to removed).  If no bad bands are defined, returns None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Spectrum.get_shape">
 <a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.Spectrum.get_shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
@@ -497,7 +507,8 @@
         <span class="n">editable</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;editable&quot;</span><span class="p">]</span>
         <span class="n">discardable</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;discardable&quot;</span><span class="p">]</span>
         <span class="n">spectrum</span> <span class="o">=</span> <span class="n">NumPyArraySpectrum</span><span class="p">(</span><span class="n">spectrum_arr</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">,</span> <span class="n">editable</span><span class="p">,</span> <span class="n">discardable</span><span class="p">)</span>
-        <span class="n">spectrum</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spectrum</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">spectrum</span></div>
 </div>
 
@@ -538,6 +549,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_editable</span> <span class="o">=</span> <span class="n">editable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_discardable</span> <span class="o">=</span> <span class="n">discardable</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bad_bands</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NumPyArraySpectrum.get_name">
 <a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_name">[docs]</a>
@@ -586,6 +599,23 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">num_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of spectral bands in the spectrum.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.set_bad_bands">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.set_bad_bands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_bad_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bad_bands</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the bad bands array for this spectrum. 1 is keep, 0 is ignore.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">bad_bands</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">bad_bands</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="s2">&quot;Passed in bad bands either doesn&#39;t have 1 dimension or doesn&#39;t have&quot;</span>
+            <span class="s2">&quot;same number of bands as this spectrum!&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bad_bands</span> <span class="o">=</span> <span class="n">bad_bands</span></div>
+
+
+<div class="viewcode-block" id="NumPyArraySpectrum.get_bad_bands">
+<a class="viewcode-back" href="../../../supporting_types.html#wiser.raster.NumPyArraySpectrum.get_bad_bands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bad_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bad_bands</span></div>
 
 
 <div class="viewcode-block" id="NumPyArraySpectrum.has_wavelengths">
@@ -754,6 +784,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">num_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of spectral bands in the raster data.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">num_bands</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bad_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_bad_bands</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_bands</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">get_bad_bands</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_elem_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -954,6 +989,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../more_example_plugins.html">More Example Plugins</a></li>
 </ul>
 
 <div class="relations">

@@ -38,6 +38,7 @@
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -115,6 +116,8 @@
 </li>
       <li><a href="wiser_state.html#wiser.gui.app_state.ApplicationState.collect_spectrum">collect_spectrum() (wiser.gui.app_state.ApplicationState method)</a>
 </li>
+      <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType.COMBO_BOX">COMBO_BOX (wiser.gui.ui_library.DynamicInputType attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ctxmenu_plugins.html#wiser.plugins.ContextMenuPlugin">ContextMenuPlugin (class in wiser.plugins)</a>
@@ -143,8 +146,6 @@
 </li>
       <li><a href="supporting_types.html#wiser.raster.RegionOfInterest.del_selection">del_selection() (wiser.raster.RegionOfInterest method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="supporting_types.html#wiser.raster.RasterDataBand.deserialize_into_class">deserialize_into_class() (wiser.raster.RasterDataBand static method)</a>
 
       <ul>
@@ -153,9 +154,25 @@
         <li><a href="supporting_types.html#wiser.raster.Spectrum.deserialize_into_class">(wiser.raster.Spectrum static method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.determine_link_state">determine_link_state() (wiser.raster.RasterDataSet method)</a>
 </li>
       <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputDialog">DynamicInputDialog (class in wiser.gui.ui_library)</a>
+</li>
+      <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType">DynamicInputType (class in wiser.gui.ui_library)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType.FLOAT_NO_UNITS">FLOAT_NO_UNITS (wiser.gui.ui_library.DynamicInputType attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType.FLOAT_UNITS">FLOAT_UNITS (wiser.gui.ui_library.DynamicInputType attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -173,8 +190,14 @@
 </li>
       <li><a href="wiser_state.html#wiser.gui.app_state.ApplicationState.get_all_spectra">get_all_spectra() (wiser.gui.app_state.ApplicationState method)</a>
 </li>
-      <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_bad_bands">get_bad_bands() (wiser.raster.RasterDataSet method)</a>
+      <li><a href="supporting_types.html#wiser.raster.NumPyArraySpectrum.get_bad_bands">get_bad_bands() (wiser.raster.NumPyArraySpectrum method)</a>
+
+      <ul>
+        <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_bad_bands">(wiser.raster.RasterDataSet method)</a>
 </li>
+        <li><a href="supporting_types.html#wiser.raster.Spectrum.get_bad_bands">(wiser.raster.Spectrum method)</a>
+</li>
+      </ul></li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_band_data">get_band_data() (wiser.raster.RasterDataSet method)</a>
 </li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_band_data_normalized">get_band_data_normalized() (wiser.raster.RasterDataSet method)</a>
@@ -229,10 +252,10 @@
 </li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_geo_transform">get_geo_transform() (wiser.raster.RasterDataSet method)</a>
 </li>
-      <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_height">get_height() (wiser.raster.RasterDataSet method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_height">get_height() (wiser.raster.RasterDataSet method)</a>
+</li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_id">get_id() (wiser.raster.RasterDataSet method)</a>
 
       <ul>
@@ -308,6 +331,8 @@
       <li><a href="supporting_types.html#wiser.raster.NumPyArraySpectrum.get_wavelengths">get_wavelengths() (wiser.raster.NumPyArraySpectrum method)</a>
 
       <ul>
+        <li><a href="supporting_types.html#wiser.raster.RasterDataSet.get_wavelengths">(wiser.raster.RasterDataSet method)</a>
+</li>
         <li><a href="supporting_types.html#wiser.raster.Spectrum.get_wavelengths">(wiser.raster.Spectrum method)</a>
 </li>
       </ul></li>
@@ -347,9 +372,13 @@
 </li>
       <li><a href="bandmath_plugins.html#wiser.bandmath.VariableType.IMAGE_CUBE">IMAGE_CUBE (wiser.bandmath.VariableType attribute)</a>
 </li>
+      <li><a href="bandmath_plugins.html#wiser.bandmath.VariableType.IMAGE_CUBE_BATCH">IMAGE_CUBE_BATCH (wiser.bandmath.VariableType attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="bandmath_plugins.html#wiser.bandmath.VariableType.IMAGE_CUBE_BATCH">IMAGE_CUBE_BATCH (wiser.bandmath.VariableType attribute)</a>
+      <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType.INT_NO_UNITS">INT_NO_UNITS (wiser.gui.ui_library.DynamicInputType attribute)</a>
+</li>
+      <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType.INT_UNITS">INT_UNITS (wiser.gui.ui_library.DynamicInputType attribute)</a>
 </li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.is_pixel_in_image_bounds">is_pixel_in_image_bounds() (wiser.raster.RasterDataSet method)</a>
 </li>
@@ -465,6 +494,10 @@
 </li>
       <li><a href="wiser_state.html#wiser.gui.app_state.ApplicationState.set_active_spectrum">set_active_spectrum() (wiser.gui.app_state.ApplicationState method)</a>
 </li>
+      <li><a href="supporting_types.html#wiser.raster.NumPyArraySpectrum.set_bad_bands">set_bad_bands() (wiser.raster.NumPyArraySpectrum method)</a>
+</li>
+      <li><a href="supporting_types.html#wiser.raster.RasterDataSet.set_band_descriptions">set_band_descriptions() (wiser.raster.RasterDataSet method)</a>
+</li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.set_band_list">set_band_list() (wiser.raster.RasterDataSet method)</a>
 </li>
       <li><a href="supporting_types.html#wiser.raster.RasterDataSet.set_band_unit">set_band_unit() (wiser.raster.RasterDataSet method)</a>
@@ -514,7 +547,11 @@
       <li><a href="ctxmenu_plugins.html#wiser.plugins.ContextMenuType.SPECTRUM_PLOT">SPECTRUM_PLOT (wiser.plugins.ContextMenuType attribute)</a>
 </li>
       <li><a href="bandmath_plugins.html#wiser.bandmath.VariableType.STRING">STRING (wiser.bandmath.VariableType attribute)</a>
+
+      <ul>
+        <li><a href="supporting_types.html#wiser.gui.ui_library.DynamicInputType.STRING">(wiser.gui.ui_library.DynamicInputType attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -573,6 +610,7 @@
 <li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="more_example_plugins.html">More Example Plugins</a></li>
 </ul>
 
 <div class="relations">

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>More Example Plugins &#8212; Extending WISER  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://ehlmann-research-group.github.io/WISER-Plugin-API/more_example_plugins.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Supporting Types" href="supporting_types.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="more-example-plugins">
+<h1>More Example Plugins<a class="headerlink" href="#more-example-plugins" title="Link to this heading">¶</a></h1>
+<p>This section provides additional example plugins to demonstrate various capabilities of the WISER
+plugin system. These examples build upon the basic concepts introduced in each plugin section.</p>
+<section id="normalized-difference-index-example-plugin">
+<h2>Normalized Difference Index Example Plugin<a class="headerlink" href="#normalized-difference-index-example-plugin" title="Link to this heading">¶</a></h2>
+<p>This plugin uses both a Tools Menu plugin and a Context Menu plugin to create the desired functionality.
+You use the Tool Menu plugin to create a new normalized difference index and the context menu plugin
+to use it on a displayed image quickly.</p>
+<p>This plugin also teaches you how to get data from WISER and add data back into WISER.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolsMenuPlugin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">PySide2.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMessageBox</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.raster.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">RasterDataSet</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.gui.app_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplicationState</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wiser.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextMenuPlugin</span><span class="p">,</span> <span class="n">ContextMenuType</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">quick_indices</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;NDVI&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">860</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="mi">660</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">],</span>
+    <span class="s2">&quot;NDWI&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">550</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="mi">860</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">],</span>
+    <span class="s2">&quot;NDBI&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1600</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="mi">860</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">],</span>
+<span class="p">}</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ApplyNDIndex</span><span class="p">(</span><span class="n">ContextMenuPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use a user selected normalized difference index quickly on a dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_context_menu_items</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context_type</span><span class="p">:</span> <span class="n">ContextMenuType</span><span class="p">,</span>
+        <span class="n">context_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to</span>
+<span class="sd">        add sub-menus to the Tools menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">context_type</span> <span class="o">==</span> <span class="n">ContextMenuType</span><span class="o">.</span><span class="n">RASTER_VIEW</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Context-menu display in a raster-view, which probably is showing a</span>
+<span class="sd">            dataset.  The current dataset is passed to the plugin.</span>
+
+<span class="sd">            Example code to get all necessary pieces of data for this context_type:</span>
+<span class="sd">            ```python</span>
+<span class="sd">            # A RasterDataSet object</span>
+<span class="sd">            dataset = context[&quot;dataset&quot;]</span>
+<span class="sd">            # A 3 or 1 tuple of integers</span>
+<span class="sd">            display_bands = context[&quot;display_bands&quot;]</span>
+<span class="sd">            # Every context_type has the app_state in the &quot;wiser&quot; key</span>
+<span class="sd">            app_state = context[&quot;wiser&quot;]</span>
+<span class="sd">            ```</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">act</span> <span class="o">=</span> <span class="n">context_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Use NDI&quot;</span><span class="p">)</span>
+            <span class="n">act</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_and_use_ndi</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized context_type value </span><span class="si">{</span><span class="n">context_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_and_use_ndi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="n">app_state</span><span class="p">:</span> <span class="n">ApplicationState</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;wiser&quot;</span><span class="p">]</span>
+        <span class="n">form_inputs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;Select the NDI method to use&quot;</span><span class="p">,</span> <span class="s2">&quot;ndi_method&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">quick_indices</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+        <span class="p">]</span>
+        <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">create_form</span><span class="p">(</span>
+            <span class="n">form_inputs</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Analysis Params&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The equation for the NDI is (a-b)/(a+b)&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ndi_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;ndi_method&quot;</span><span class="p">]</span>
+        <span class="n">wvl_a</span><span class="p">,</span> <span class="n">wvl_b</span> <span class="o">=</span> <span class="n">quick_indices</span><span class="p">[</span><span class="n">ndi_method</span><span class="p">]</span>
+
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">RasterDataSet</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+        <span class="n">wavelengths</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_spectral_metadata</span><span class="p">()</span><span class="o">.</span><span class="n">get_wavelengths</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">wavelengths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;Couldn&#39;t Apply NDI&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;The selected dataset has no wavelengths, cannot apply NDI.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">wvl_a_index_closest</span> <span class="o">=</span> <span class="n">find_closest_wavelength</span><span class="p">(</span>
+            <span class="n">wavelengths</span><span class="o">=</span><span class="n">wavelengths</span><span class="p">,</span>
+            <span class="n">input_wavelength</span><span class="o">=</span><span class="n">wvl_a</span><span class="p">,</span>
+            <span class="n">max_distance</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">wvl_b_index_closest</span> <span class="o">=</span> <span class="n">find_closest_wavelength</span><span class="p">(</span>
+            <span class="n">wavelengths</span><span class="o">=</span><span class="n">wavelengths</span><span class="p">,</span>
+            <span class="n">input_wavelength</span><span class="o">=</span><span class="n">wvl_b</span><span class="p">,</span>
+            <span class="n">max_distance</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">wvl_a_index_closest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find a matching wavelength for </span><span class="si">{</span><span class="n">wvl_a</span><span class="si">}</span><span class="s2"> within 5 nm&quot;</span>
+        <span class="k">assert</span> <span class="n">wvl_b_index_closest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find a matching wavelength for </span><span class="si">{</span><span class="n">wvl_b</span><span class="si">}</span><span class="s2"> within 5 nm&quot;</span>
+
+        <span class="n">band_a</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_band_data</span><span class="p">(</span><span class="n">wvl_a_index_closest</span><span class="p">)</span>
+        <span class="n">band_b</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_band_data</span><span class="p">(</span><span class="n">wvl_b_index_closest</span><span class="p">)</span>
+
+        <span class="n">ndi</span> <span class="o">=</span> <span class="p">(</span><span class="n">band_a</span> <span class="o">-</span> <span class="n">band_b</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">band_a</span> <span class="o">+</span> <span class="n">band_b</span><span class="p">)</span>
+
+        <span class="c1"># Get object that helps us load datasets from numpy arrays or file paths</span>
+        <span class="n">data_loader</span> <span class="o">=</span> <span class="n">app_state</span><span class="o">.</span><span class="n">get_loader</span><span class="p">()</span>
+        <span class="c1"># We must add a dimension to the beginning of the array because WISER takes</span>
+        <span class="c1"># 3D arrays in the form [band][y][x]</span>
+        <span class="n">ndi</span> <span class="o">=</span> <span class="n">ndi</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="c1"># Create the dataset object, you must set its name</span>
+        <span class="n">ndi_dataset</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">dataset_from_numpy_array</span><span class="p">(</span><span class="n">ndi</span><span class="p">,</span> <span class="n">app_state</span><span class="o">.</span><span class="n">get_cache</span><span class="p">())</span>
+        <span class="n">ndi_dataset</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ndi_method</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Now add it back to our app</span>
+        <span class="n">app_state</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span><span class="n">ndi_dataset</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NormalizedDifferenceIndexMaker</span><span class="p">(</span><span class="n">ToolsMenuPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A plugin to make a new normalized difference index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tool_menu_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tool_menu</span><span class="p">:</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">wiser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use QMenu.addAction() to add individual actions, or QMenu.addMenu() to</span>
+<span class="sd">        add sub-menus to the Tools menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;NormalizedDifferenceIndexMaker is adding tool-menu items&quot;</span><span class="p">)</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="n">tool_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Created new NDI&quot;</span><span class="p">)</span>
+        <span class="n">act</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_nd_index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span> <span class="o">=</span> <span class="n">wiser</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_nd_index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># To create the ND index, we need a name and the two wavelengths to use</span>
+        <span class="c1"># for the index, so lets make a form to get that</span>
+
+        <span class="n">form_inputs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;Enter Wavelength for A&quot;</span><span class="p">,</span> <span class="s2">&quot;wvl_a&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Enter Wavelength for B&quot;</span><span class="p">,</span> <span class="s2">&quot;wvl_b&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Enter Normalized Difference Index Name&quot;</span><span class="p">,</span> <span class="s2">&quot;ndi_name&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_state</span><span class="o">.</span><span class="n">create_form</span><span class="p">(</span>
+            <span class="n">form_inputs</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Analysis Params&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The equation for the ND is (a-b)/(a+b)&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">wvl_a</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span> <span class="o">=</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;wvl_a&quot;</span><span class="p">]</span>
+        <span class="n">wvl_b</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span> <span class="o">=</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;wvl_b&quot;</span><span class="p">]</span>
+        <span class="n">ndi_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;ndi_name&quot;</span><span class="p">]</span>
+
+        <span class="n">quick_indices</span><span class="p">[</span><span class="n">ndi_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">wvl_a</span><span class="p">,</span> <span class="n">wvl_b</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_closest_wavelength</span><span class="p">(</span>
+    <span class="n">wavelengths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">],</span>
+    <span class="n">input_wavelength</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span>
+    <span class="n">max_distance</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of wavelengths and an input wavelength, this function returns</span>
+<span class="sd">    the index of the wavelength closest to the input wavelength.  If no</span>
+<span class="sd">    wavelength is within max_distance of the input then None is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Do the whole calculation in nm to keep things simple.</span>
+    <span class="k">if</span> <span class="n">max_distance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_distance</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">input_wavelength</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">si</span>
+    <span class="n">input_value</span> <span class="o">=</span> <span class="n">convert_spectral</span><span class="p">(</span><span class="n">input_wavelength</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">max_dist_value</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">max_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_dist_value</span> <span class="o">=</span> <span class="n">convert_spectral</span><span class="p">(</span><span class="n">max_distance</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_spectral</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">wavelengths</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">find_closest_value</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">input_value</span><span class="p">,</span> <span class="n">max_dist_value</span><span class="p">)</span>
+
+
+<span class="n">Number</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_closest_value</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Number</span><span class="p">],</span> <span class="n">input_value</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">max_distance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Number</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of numbers (ints and/or floats) and an input number, this</span>
+<span class="sd">    function returns the index of the number closest to the input number.</span>
+<span class="sd">    If no number is within max_distance of the input then None is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">best_index</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">best_distance</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">input_value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">max_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="n">max_distance</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">best_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">best_distance</span><span class="p">:</span>
+            <span class="n">best_index</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">best_distance</span> <span class="o">=</span> <span class="n">distance</span>
+
+    <span class="k">return</span> <span class="n">best_index</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_spectral</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span> <span class="n">to_unit</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a spectral value with units (e.g. a frequency or wavelength),</span>
+<span class="sd">    to the specified units.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">to_unit</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Extending WISER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">WISER Plugins Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ctxmenu_plugins.html">Context-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolsmenu_plugins.html">Tools-Menu Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui_plugins.html">GUI Plugins in WISER</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bandmath_plugins.html">Band-Math Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_utilities.html">Plugin Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_dependencies.html">Plugin Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiser_state.html">Accessing and Modifying WISER State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supporting_types.html">Supporting Types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">More Example Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#normalized-difference-index-example-plugin">Normalized Difference Index Example Plugin</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="supporting_types.html" title="previous chapter">Supporting Types</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2021, California Institute of Technology.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/more_example_plugins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

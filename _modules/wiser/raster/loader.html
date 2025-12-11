@@ -144,8 +144,10 @@
                     <span class="n">impl_list</span> <span class="o">=</span> <span class="n">impl_type</span><span class="o">.</span><span class="n">try_load_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t load file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> with driver &quot;</span>
-                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">driver_name</span><span class="si">}</span><span class="s2"> and implementation </span><span class="si">{</span><span class="n">impl_type</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Couldn&#39;t load file </span><span class="si">%s</span><span class="s2"> with driver </span><span class="si">%s</span><span class="s2"> and implementation </span><span class="si">%s</span><span class="s2">. Error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">path</span><span class="p">,</span>
+                    <span class="n">driver_name</span><span class="p">,</span>
+                    <span class="n">impl_type</span><span class="p">,</span>
                     <span class="n">e</span><span class="p">,</span>
                 <span class="p">)</span>
 
@@ -199,7 +201,7 @@
 
 <div class="viewcode-block" id="RasterDataLoader.dataset_from_numpy_array">
 <a class="viewcode-back" href="../../../wiser_state.html#wiser.raster.RasterDataLoader.dataset_from_numpy_array">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_from_numpy_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="s2">&quot;DataCache&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RasterDataSet</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_from_numpy_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="s2">&quot;DataCache&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RasterDataSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a NumPy ndarray, this function returns a RasterDataSet object</span>
 <span class="sd">        that uses the array for its raster data.  The input ndarray must have</span>
@@ -254,6 +256,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../more_example_plugins.html">More Example Plugins</a></li>
 </ul>
 
 <div class="relations">

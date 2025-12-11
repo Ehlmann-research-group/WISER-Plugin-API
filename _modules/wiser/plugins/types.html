@@ -46,6 +46,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">wiser.bandmath</span><span class="w"> </span><span class="kn">import</span> <span class="n">BandMathValue</span><span class="p">,</span> <span class="n">BandMathFunction</span>
 
 
+<div class="viewcode-block" id="ContextMenuType">
+<a class="viewcode-back" href="../../../ctxmenu_plugins.html#wiser.plugins.ContextMenuType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ContextMenuType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This enumeration specifies the kind of context-menu event that occurred,</span>
@@ -69,7 +71,8 @@
 
     <span class="c1"># A specific ROI was picked.  The ROI is passed, along with the current</span>
     <span class="c1"># dataset (if available).</span>
-    <span class="n">ROI_PICK</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">ROI_PICK</span> <span class="o">=</span> <span class="mi">12</span></div>
+
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Plugin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -111,6 +114,8 @@
 
 
 
+<div class="viewcode-block" id="ContextMenuPlugin">
+<a class="viewcode-back" href="../../../ctxmenu_plugins.html#wiser.plugins.ContextMenuPlugin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ContextMenuPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is the base type for plugins that integrate into WISER pop-up context</span>
@@ -120,6 +125,8 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
+<div class="viewcode-block" id="ContextMenuPlugin.add_context_menu_items">
+<a class="viewcode-back" href="../../../ctxmenu_plugins.html#wiser.plugins.ContextMenuPlugin.add_context_menu_items">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_context_menu_items</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">context_type</span><span class="p">:</span> <span class="n">ContextMenuType</span><span class="p">,</span>
@@ -214,9 +221,13 @@
 <span class="sd">            act.triggered.connect(lambda checked=False: self.on_some_task(context=context))</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
+</div>
 
 
+
+<div class="viewcode-block" id="BandMathPlugin">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.plugins.BandMathPlugin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BandMathPlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is the base type for plugins that provide custom band-math functions.</span>
@@ -225,6 +236,8 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
+<div class="viewcode-block" id="BandMathPlugin.get_bandmath_functions">
+<a class="viewcode-back" href="../../../bandmath_plugins.html#wiser.plugins.BandMathPlugin.get_bandmath_functions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_bandmath_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BandMathFunction</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method returns a dictionary of all band-math functions provided by</span>
@@ -243,7 +256,9 @@
 <span class="sd">        names specified by a plugin are converted to lowercase when loaded into</span>
 <span class="sd">        the band-math evaluator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
+</div>
+
 </pre></div>
 
           </div>
@@ -273,6 +288,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../plugin_dependencies.html">Plugin Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wiser_state.html">Accessing and Modifying WISER State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../supporting_types.html">Supporting Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../more_example_plugins.html">More Example Plugins</a></li>
 </ul>
 
 <div class="relations">
